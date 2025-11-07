@@ -1,0 +1,59 @@
+# 模型配置文件
+models:
+  qwen2.5-7b:
+    name: "Qwen/Qwen2.5-7B-Instruct"
+    local_path: "./models/qwen2.5-7b"
+    precision: "fp16"
+    size: "7B"
+    layers: 28
+    hidden_size: 3584
+    quantized_version:
+      name: "Qwen/Qwen2.5-7B-Instruct-AWQ"
+      local_path: "./models/qwen2.5-7b-awq"
+      precision: "int4"
+      method: "awq"
+
+  llama-3.1-8b:
+    name: "meta-llama/Llama-3.1-8B-Instruct"
+    local_path: "./models/llama-3.1-8b"
+    precision: "fp16"
+    size: "8B"
+    layers: 32
+    hidden_size: 4096
+    quantized_version:
+      name: "meta-llama/Llama-3.1-8B-Instruct-GPTQ"
+      local_path: "./models/llama-3.1-8b-gptq"
+      precision: "int4"
+      method: "gptq"
+
+  mistral-7b:
+    name: "mistralai/Mistral-7B-Instruct-v0.3"
+    local_path: "./models/mistral-7b"
+    precision: "fp16"
+    size: "7B"
+    layers: 32
+    hidden_size: 4096
+    quantized_version:
+      name: "mistralai/Mistral-7B-Instruct-v0.3-AWQ"
+      local_path: "./models/mistral-7b-awq"
+      precision: "int4"
+      method: "awq"
+
+# 设备配置
+devices:
+  nvidia:
+    type: "cuda"
+    device_id: 0
+    name: "RTX 5090"
+    memory: "24GB"
+  
+  mac:
+    type: "mps"
+    device_id: 0
+    name: "M3 Max"
+    memory: "64GB+"
+  
+  cpu:
+    type: "cpu"
+    device_id: 0
+    name: "CPU"

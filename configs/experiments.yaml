@@ -1,0 +1,124 @@
+# 实验配置文件
+experiment:
+  name: "VeriLLM Verification Experiments"
+  version: "1.0.0"
+  description: "基于VeriLLM论文的验证机制实验"
+  
+  # 运行参数
+  runs_per_config: 3  # 每个配置重复3次
+  
+  # Hidden States采样配置
+  hidden_state_sampling:
+    method: "every_n_layers"  # 采样方法
+    n: 8  # 每隔8层记录一次（论文设置）
+    layers: [0, 8, 16, 24, 32]  # 或者指定具体层（可选）
+  
+  # 统计阈值（论文Section 8.2）
+  thresholds:
+    Pe: 0.05   # 指数位不匹配率上限
+    Pm: 0.75   # 大尾数偏差比例下限
+    Pw: 0.80   # 小尾数偏差比例下限
+    mean_epsilon: 0.01  # 平均误差上限
+  
+  # 输出配置
+  output:
+    save_hidden_states: false  # 是否保存Hidden States（占用空间大）
+    save_generated_text: true  # 是否保存生成文本
+    save_statistics: true      # 是否保存统计数据
+
+# 实验1：同构硬件基线
+exp1_homogeneous:
+  name: "同构硬件基线验证"
+  description: "在同一硬件上进行推理和验证，建立误差基线"
+  enabled: true
+  scenarios:
+    - name: "nvidia_nvidia"
+      inference_device: "nvidia"
+      verification_device: "nvidia"
+      inference_model: "full"  # full or quantized
+      verification_model: "full"
+    - name: "mac_mac"
+      inference_device: "mac"
+      verification_device: "mac"
+      inference_model: "full"
+      verification_model: "full"
+
+# 实验2：异构硬件兼容性
+exp2_heterogeneous:
+  name: "异构硬件兼容性测试"
+  description: "跨硬件平台的推理和验证，测试兼容性"
+  enabled: true
+  scenarios:
+    - name: "nvidia_mac"
+      inference_device: "nvidia"
+      verification_device: "mac"
+      inference_model: "full"
+      verification_model: "full"
+    - name: "mac_nvidia"
+      inference_device: "mac"
+      verification_device: "nvidia"
+      inference_model: "full"
+      verification_model: "full"
+
+# 实验3：量化攻击检测（同构）
+exp3_quantization_homo:
+  name: "量化攻击检测（同构）"
+  description: "推理端使用量化模型作弊，验证端使用全精度检测"
+  enabled: true
+  scenarios:
+    - name: "nvidia_quantized_nvidia_full"
+      inference_device: "nvidia"
+      verification_device: "nvidia"
+      inference_model: "quantized"  # 作弊：用量化
+      verification_model: "full"    # 验证：用全精度
+      expected_result: "REJECT"     # 预期被检测
+
+# 实验4：量化攻击检测（异构）
+exp4_quantization_hetero:
+  name: "量化攻击检测（异构）"
+  description: "跨硬件 + 量化攻击，最坏情况"
+  enabled: true
+  scenarios:
+    - name: "nvidia_quantized_mac_full"
+      inference_device: "nvidia"
+      verification_device: "mac"
+      inference_model: "quantized"
+      verification_model: "full"
+      expected_result: "REJECT"
+    - name: "mac_quantized_nvidia_full"
+      inference_device: "mac"
+      verification_device: "nvidia"
+      inference_model: "quantized"
+      verification_model: "full"
+      expected_result: "REJECT"
+
+# 实验5：懒惰验证者
+exp5_lazy_verifier:
+  name: "懒惰验证者检测"
+  description: "验证者偷懒使用量化模型，测试是否能被发现"
+  enabled: true
+  scenarios:
+    - name: "nvidia_full_nvidia_quantized"
+      inference_device: "nvidia"
+      verification_device: "nvidia"
+      inference_model: "full"
+      verification_model: "quantized"  # 验证者偷懒
+      expected_result: "REJECT"
+    - name: "mac_full_mac_quantized"
+      inference_device: "mac"
+      verification_device: "mac"
+      inference_model: "full"
+      verification_model: "quantized"
+      expected_result: "REJECT"
+
+# 实验6：多验证者并行
+exp6_one_to_many:
+  name: "一对多验证"
+  description: "一个推理者，多个验证者并行验证"
+  enabled: true
+  scenarios:
+    - name: "nvidia_to_multiple"
+      inference_device: "nvidia"
+      verification_devices: ["nvidia", "mac", "nvidia"]  # 3个验证者
+      num_verifiers: 3
+      parallel: true  # 并行执行
