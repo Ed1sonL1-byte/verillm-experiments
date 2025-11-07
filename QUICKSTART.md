@@ -1,42 +1,39 @@
-# 快速开始指南
+# Quick Start Guide
 
-## 1. 环境配置（5分钟）
+## 1. Environment Setup (5 minutes)
 
 ```bash
-# 解压项目
-unzip verillm-experiments.zip
+# Extract or clone the project
 cd verillm-experiments
 
-# 配置环境
+# Setup environment (for Linux)
 bash scripts/setup_environment.sh
 
-# 激活虚拟环境
-source venv/bin/activate  # Linux/Mac
-# 或
-venv\Scripts\activate  # Windows
+# Activate virtual environment
+source venv/bin/activate
 ```
 
-## 2. 测试环境（1分钟）
+## 2. Test Environment (1 minute)
 
 ```bash
 python test_setup.py
 ```
 
-应该看到：
+Expected output:
 ```
-✅ CUDA可用 - RTX 5090
-✅ 模型加载成功
-✅ 推理成功
-✅ 所有测试通过！
+✅ CUDA available - RTX 5090
+✅ Model loaded successfully
+✅ Inference successful
+✅ All tests passed!
 ```
 
-## 3. 下载模型（30分钟-1小时）
+## 3. Download Models (30 minutes - 1 hour)
 
 ```bash
-# 方法1：使用脚本（推荐）
+# Method 1: Using script (recommended)
 bash scripts/download_models.sh
 
-# 方法2：手动下载
+# Method 2: Manual download
 python -c "
 from transformers import AutoModelForCausalLM, AutoTokenizer
 AutoModelForCausalLM.from_pretrained('Qwen/Qwen2.5-7B-Instruct')
@@ -44,74 +41,87 @@ AutoTokenizer.from_pretrained('Qwen/Qwen2.5-7B-Instruct')
 "
 ```
 
-## 4. 运行第一个实验（10-20分钟）
+## 4. Run First Experiment (10-20 minutes)
 
 ```bash
-# 运行实验1
+# Run experiment 1
 python experiments/exp1_homogeneous.py
 ```
 
-**预期输出：**
+**Expected output:**
 ```
-[2024-11-06 10:00:00] 开始推理，最大tokens: 1000
-[2024-11-06 10:05:00] 推理完成，生成 800 tokens
-[2024-11-06 10:05:05] 验证完成，耗时: 0.5秒
-[2024-11-06 10:05:05] 验证开销比例: 0.85%
-[2024-11-06 10:05:06] 验证通过率: 98.5%
-[2024-11-06 10:05:06] 最终判定: PASS
+[2024-11-06 10:00:00] Starting inference, max tokens: 1000
+[2024-11-06 10:05:00] Inference complete, generated 800 tokens
+[2024-11-06 10:05:05] Verification complete, time: 0.5s
+[2024-11-06 10:05:05] Verification overhead ratio: 0.85%
+[2024-11-06 10:05:06] Verification pass rate: 98.5%
+[2024-11-06 10:05:06] Final verdict: PASS
 ```
 
-**结果文件：**
-- `data/raw/exp1/qwen2.5-7b_cuda_run1.json` - 实验数据
-- `logs/exp1_homogeneous_YYYYMMDD_HHMMSS.log` - 详细日志
+**Result files:**
+- `data/raw/exp1/qwen2.5-7b_cuda_run1.json` - Experiment data
+- `logs/exp1_homogeneous_YYYYMMDD_HHMMSS.log` - Detailed logs
 
-## 5. 查看结果
+## 5. View Results
 
 ```python
 import json
 
-# 加载结果
+# Load results
 with open('data/raw/exp1/qwen2.5-7b_cuda_run1.json', 'r') as f:
     result = json.load(f)
 
-# 关键指标
-print(f"验证开销: {result['overhead']['percentage']:.2f}%")
-print(f"验证通过率: {result['statistics']['summary']['accept_rate']*100:.2f}%")
-print(f"判定: {result['verdict']}")
+# Key metrics
+print(f"Verification overhead: {result['overhead']['percentage']:.2f}%")
+print(f"Verification pass rate: {result['statistics']['summary']['accept_rate']*100:.2f}%")
+print(f"Verdict: {result['verdict']}")
 ```
 
-## 常见问题
+## Common Issues
 
 ### Q1: CUDA out of memory
-**解决**：减少max_new_tokens
+**Solution**: Reduce max_new_tokens
 ```python
-# 在experiments/exp1_homogeneous.py中修改
+# Modify in experiments/exp1_homogeneous.py
 inference_result = inferencer.generate_with_hidden_states(
     prompt=prompt,
-    max_new_tokens=500,  # 从1000改为500
+    max_new_tokens=500,  # Change from 1000 to 500
     ...
 )
 ```
 
-### Q2: 模型下载太慢
-**解决**：使用国内镜像
+### Q2: Model download too slow
+**Solution**: Use domestic mirror (for China)
 ```bash
 export HF_ENDPOINT=https://hf-mirror.com
 bash scripts/download_models.sh
 ```
 
-### Q3: Mac上使用MPS
-**修改**：在experiments/exp1_homogeneous.py中
-```python
-device = "mps"  # 改为mps
+### Q3: GPU not detected
+**Check**: CUDA installation
+```bash
+# Check NVIDIA driver
+nvidia-smi
+
+# Check CUDA version
+nvcc --version
+
+# Check PyTorch CUDA support
+python -c "import torch; print(torch.cuda.is_available())"
 ```
 
-## 下一步
+### Q4: Permission denied on scripts
+**Solution**: Make scripts executable
+```bash
+chmod +x scripts/*.sh
+```
 
-- 修改配置文件：`configs/experiments.yaml`
-- 添加自定义提示词：`configs/prompts.yaml`
-- 运行其他实验：`experiments/exp2_heterogeneous.py`
+## Next Steps
 
-## 获取帮助
+- Modify configuration files: `configs/experiments.yaml`
+- Add custom prompts: `configs/prompts.yaml`
+- Run other experiments: `experiments/exp2_heterogeneous.py`
 
-查看完整文档：`README.md`
+## Get Help
+
+View full documentation: `README.md`

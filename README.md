@@ -1,127 +1,126 @@
-# VeriLLM实验项目
+# VeriLLM Experiments
 
-基于论文《VeriLLM: Verifiable Decentralized Inference for LLMs》的验证机制实验复现项目。
+Experimental reproduction project based on the paper "VeriLLM: Verifiable Decentralized Inference for LLMs".
 
-## 项目概述
+## Project Overview
 
-本项目旨在验证VeriLLM论文中提出的LLM验证机制，通过对比推理端和验证端的Hidden States来检测推理诚实性。
+This project aims to validate the LLM verification mechanism proposed in the VeriLLM paper by detecting inference honesty through comparing hidden states between the inference side and verification side.
 
-### 核心实验
+### Core Experiments
 
-1. **实验1**: 同构硬件基线验证
-2. **实验2**: 异构硬件兼容性测试  
-3. **实验3**: 量化攻击检测（同构）
-4. **实验4**: 量化攻击检测（异构）
-5. **实验5**: 懒惰验证者检测
-6. **实验6**: 多验证者并行验证
+1. **Experiment 1**: Homogeneous Hardware Baseline Verification
+2. **Experiment 2**: Heterogeneous Hardware Compatibility Testing
+3. **Experiment 3**: Quantization Attack Detection (Homogeneous)
+4. **Experiment 4**: Quantization Attack Detection (Heterogeneous)
+5. **Experiment 5**: Lazy Verifier Detection
+6. **Experiment 6**: Multi-Verifier Parallel Verification
 
-## 快速开始
+## Quick Start
 
-### 1. 环境配置
+### 1. Environment Setup
 
 ```bash
-# 创建虚拟环境
+# Create virtual environment
 python3.11 -m venv venv
-source venv/bin/activate  # Linux/Mac
-# 或 venv\Scripts\activate  # Windows
+source venv/bin/activate
 
-# 安装依赖
+# Install dependencies
 pip install -r requirements.txt
 ```
 
-### 2. 配置检查
+### 2. Configuration Check
 
 ```bash
-# 运行环境测试
+# Run environment test
 python test_setup.py
 ```
 
-### 3. 下载模型
+### 3. Download Models
 
 ```bash
-# 使用提供的脚本下载模型
+# Use provided script to download models
 bash scripts/download_models.sh
 ```
 
-### 4. 运行第一个实验
+### 4. Run First Experiment
 
 ```bash
-# 运行实验1
+# Run experiment 1
 python experiments/exp1_homogeneous.py
 ```
 
-## 项目结构
+## Project Structure
 
 ```
 verillm-experiments/
-├── configs/           # 配置文件
-├── src/              # 源代码
-│   ├── models/       # 模型管理
-│   ├── inference/    # 推理端
-│   ├── verification/ # 验证端
-│   ├── analysis/     # 数据分析
-│   └── utils/        # 工具函数
-├── experiments/      # 实验脚本
-├── data/            # 实验数据
-├── models/          # 模型文件
-└── logs/            # 日志文件
+├── configs/           # Configuration files
+├── src/              # Source code
+│   ├── models/       # Model management
+│   ├── inference/    # Inference side
+│   ├── verification/ # Verification side
+│   ├── analysis/     # Data analysis
+│   └── utils/        # Utility functions
+├── experiments/      # Experiment scripts
+├── data/            # Experimental data
+├── models/          # Model files
+└── logs/            # Log files
 ```
 
-## 硬件要求
+## Hardware Requirements
 
-### 最低配置
-- GPU: NVIDIA RTX 5090 (24GB) 或 Apple M3 Max (64GB+)
+### Minimum Configuration
+- GPU: NVIDIA RTX 5090 (24GB) or Apple M3 Max (64GB+)
 - RAM: 64GB
-- 存储: 200GB
+- Storage: 200GB
 
-### 推荐配置
+### Recommended Configuration
 - GPU: NVIDIA RTX 5090 + Apple M3 Max
 - RAM: 128GB
-- 存储: 500GB
+- Storage: 500GB
 
-## 实验流程
+## Experiment Workflow
 
-### 实验1示例
+### Experiment 1 Example
 ```python
 from src.models.model_loader import ModelLoader
 from src.inference.inferencer import Inferencer
 from src.verification.verifier import Verifier
 
-# 加载模型
+# Load model
 loader = ModelLoader()
 model, tokenizer = loader.load_model("qwen2.5-7b", device="cuda")
 
-# 推理
+# Inference
 inferencer = Inferencer(model, tokenizer, "cuda", logger)
 result = inferencer.generate_with_hidden_states(prompt)
 
-# 验证
+# Verification
 verifier = Verifier(model, tokenizer, "cuda", logger)
 verification = verifier.verify_with_prefill(prompt, result['generated_tokens'])
 ```
 
-## 数据输出
+## Data Output
 
-每次实验会生成：
-- JSON结果文件（统计数据）
-- 日志文件（详细过程）
-- Hidden States（可选）
+Each experiment generates:
+- JSON result file (statistical data)
+- Log file (detailed process)
+- Hidden States (optional)
 
-## 常见问题
+## Common Issues
 
 ### 1. CUDA out of memory
-- 减少batch size或序列长度
-- 使用量化模型
+- Reduce batch size or sequence length
+- Use quantized models
 
-### 2. 模型下载失败
-- 检查网络连接
-- 使用国内镜像源
+### 2. Model download failure
+- Check network connection
+- Use domestic mirror sources
 
-### 3. MPS设备不可用
-- 确认macOS版本 >= 14.0
-- 确认安装了Xcode Command Line Tools
+### 3. MPS device unavailable
+- Ensure macOS version >= 14.0
+- Ensure Xcode Command Line Tools are installed
 
-## 论文引用
+## Citation
 
 ```bibtex
 @article{verillm2024,
@@ -131,10 +130,10 @@ verification = verifier.verify_with_prefill(prompt, result['generated_tokens'])
 }
 ```
 
-## 联系方式
+## Contact
 
-如有问题，请提交Issue或联系项目维护者。
+For questions, please submit an Issue or contact the project maintainer.
 
-## 许可证
+## License
 
 MIT License
