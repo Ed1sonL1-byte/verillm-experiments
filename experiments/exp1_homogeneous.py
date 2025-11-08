@@ -1,101 +1,202 @@
-"""实验1：同构硬件基线验证"""
-import sys
-from pathlib import Path
-project_root = Path(__file__).parent.parent
-sys.path.insert(0, str(project_root))
+"""
+Experiment 1: Homogeneous Hardware Baseline Verification
 
-import yaml
-import torch
-import numpy as np
-from src.utils.logger import setup_logger
-from src.utils.data_saver import DataSaver
+Goal: Establish baseline floating-point deviation when both inference
+and verification run on identical hardware.
+
+Setup:
+- Same hardware for inference and verification (NVIDIA GPU or Mac M4)
+- Same full-precision model
+- Multiple diverse prompts
+- Record hidden states every 8 layers
+
+Metrics:
+- Verification overhead (prefill time / full inference time)
+- Hidden state comparison statistics (Pe, Pm, Pw, mean error)
+- Acceptance rate
+"""
+
+from base_experiment import BaseExperiment
 from src.models.model_loader import ModelLoader
 from src.inference.inferencer import Inferencer
 from src.verification.verifier import Verifier
-from src.analysis.statistics import HiddenStateStatistics
 
-def run_exp1_single(model_name, device, prompt, run_id, output_dir, logger):
-    """运行单次实验1"""
-    logger.info(f"=" * 60)
-    logger.info(f"实验1 - 同构验证 ({device} → {device})")
-    logger.info(f"模型: {model_name}, 运行: {run_id}")
-    logger.info(f"=" * 60)
-    
-    with open("configs/experiments.yaml", 'r') as f:
-        exp_config = yaml.safe_load(f)
-    
-    output_path = Path(output_dir)
-    output_path.mkdir(parents=True, exist_ok=True)
-    
-    logger.info(f"加载模型到 {device}...")
-    model_loader = ModelLoader()
-    model, tokenizer = model_loader.load_model(model_name, device=device)
-    
-    inferencer = Inferencer(model, tokenizer, device, logger)
-    logger.info("开始推理阶段...")
-    inference_result = inferencer.generate_with_hidden_states(
-        prompt=prompt, max_new_tokens=1000, temperature=0.7, 
-        top_p=0.9, sample_layers_every=8
-    )
-    
-    logger.info(f"推理完成，生成 {len(inference_result['generated_tokens'])} tokens")
-    
-    verifier = Verifier(model, tokenizer, device, logger)
-    logger.info("开始验证阶段...")
-    verification_result = verifier.verify_with_prefill(
-        prompt=inference_result['prompt'],
-        generated_tokens=inference_result['generated_tokens'],
-        sample_layers_every=8
-    )
-    
-    inference_time = inference_result['timing']['total_time']
-    verification_time = verification_result['timing']['total_time']
-    overhead_ratio = verification_time / inference_time
-    
-    logger.info(f"验证开销比例: {overhead_ratio*100:.2f}%")
-    
-    all_layer_stats = {}
-    for token_idx in inference_result['hidden_states'].keys():
-        for layer_idx in inference_result['hidden_states'][token_idx].keys():
-            inf_hidden = inference_result['hidden_states'][token_idx][layer_idx]
-            ver_hidden = verification_result['hidden_states'][token_idx][layer_idx]
-            stats = HiddenStateStatistics.compute_float_diff_statistics(inf_hidden, ver_hidden)
-            thresholds = exp_config['experiment']['thresholds']
-            verdict = HiddenStateStatistics.check_thresholds(stats, thresholds)
-            key = f"token_{token_idx}_layer_{layer_idx}"
-            all_layer_stats[key] = {**stats, 'verdict': 'ACCEPT' if verdict else 'REJECT'}
-    
-    accept_count = sum(1 for s in all_layer_stats.values() if s['verdict'] == 'ACCEPT')
-    total_count = len(all_layer_stats)
-    accept_rate = accept_count / total_count
-    
-    logger.info(f"验证通过率: {accept_rate*100:.2f}%")
-    
-    result = {
-        'experiment': 'exp1_homogeneous', 'model': model_name,
-        'device': device, 'run_id': run_id,
-        'inference': {'generated_length': len(inference_result['generated_tokens']),
-                     'timing': inference_result['timing']},
-        'verification': {'timing': verification_result['timing']},
-        'overhead': {'ratio': overhead_ratio, 'percentage': overhead_ratio * 100},
-        'statistics': {'per_layer': all_layer_stats,
-                      'summary': {'accept_rate': accept_rate}},
-        'verdict': 'PASS' if accept_rate > 0.95 else 'FAIL'
-    }
-    
-    output_file = output_path / f"{model_name}_{device}_run{run_id}.json"
-    DataSaver.save_json(result, str(output_file))
-    logger.info(f"结果已保存到: {output_file}")
-    return result
+
+class Exp1Homogeneous(BaseExperiment):
+    def __init__(self, model_name: str, device: str, num_verifiers: int = 3):
+        super().__init__(
+            exp_name=f"exp1_homogeneous_{model_name}_{device}",
+            output_dir=f"data/raw/exp1"
+        )
+        self.model_name = model_name
+        self.device = device
+        self.num_verifiers = num_verifiers
+
+    def run_single_trial(self, prompt: str, trial_id: int) -> dict:
+        """Run a single inference + verification trial"""
+        self.logger.info(f"=" * 80)
+        self.logger.info(f"Trial {trial_id}: {self.model_name} on {self.device}")
+        self.logger.info(f"Prompt length: {len(prompt)} chars")
+        self.logger.info(f"=" * 80)
+
+        # Load model
+        self.logger.info(f"Loading model {self.model_name} to {self.device}...")
+        model_loader = ModelLoader()
+        model, tokenizer = model_loader.load_model(self.model_name, device=self.device)
+
+        # === INFERENCE PHASE ===
+        inferencer = Inferencer(model, tokenizer, self.device, self.logger)
+        self.logger.info("Starting inference (Prefill + Decode)...")
+
+        inference_result = inferencer.generate_with_hidden_states(
+            prompt=prompt,
+            max_new_tokens=1000,
+            temperature=0.7,
+            top_p=0.9,
+            sample_layers_every=8
+        )
+
+        self.logger.info(f"Inference complete: generated {len(inference_result['generated_tokens'])} tokens")
+        self.logger.info(f"Inference time: {inference_result['timing']['total_time']:.2f}s")
+
+        # === VERIFICATION PHASE (Multiple verifiers) ===
+        verification_results = []
+
+        for ver_id in range(self.num_verifiers):
+            self.logger.info(f"Starting verification {ver_id+1}/{self.num_verifiers} (Prefill only)...")
+            verifier = Verifier(model, tokenizer, self.device, self.logger)
+
+            ver_result = verifier.verify_with_prefill(
+                prompt=inference_result['prompt'],
+                generated_tokens=inference_result['generated_tokens'],
+                sample_layers_every=8
+            )
+
+            self.logger.info(f"Verification {ver_id+1} complete: {ver_result['timing']['total_time']:.2f}s")
+            verification_results.append(ver_result)
+
+        # === COMPARISON & ANALYSIS ===
+        all_verifier_stats = []
+
+        for ver_id, ver_result in enumerate(verification_results):
+            stats = self.compare_hidden_states(
+                inference_result['hidden_states'],
+                ver_result['hidden_states']
+            )
+
+            overhead = self.compute_verification_overhead(
+                inference_result['timing']['total_time'],
+                ver_result['timing']['total_time']
+            )
+
+            all_verifier_stats.append({
+                'verifier_id': ver_id,
+                'statistics': stats,
+                'overhead': overhead,
+                'verdict': 'PASS' if stats['summary']['accept_rate'] > 0.95 else 'FAIL'
+            })
+
+            self.logger.info(f"Verifier {ver_id+1}: Accept rate = {stats['summary']['accept_rate']*100:.2f}%")
+            self.logger.info(f"Verifier {ver_id+1}: Overhead = {overhead['percentage']:.2f}%")
+
+        # Aggregate results
+        avg_accept_rate = sum(v['statistics']['summary']['accept_rate'] for v in all_verifier_stats) / len(all_verifier_stats)
+        avg_overhead = sum(v['overhead']['percentage'] for v in all_verifier_stats) / len(all_verifier_stats)
+
+        return {
+            'experiment': 'exp1_homogeneous',
+            'trial_id': trial_id,
+            'model': self.model_name,
+            'device': self.device,
+            'prompt': prompt[:200] + "...",  # Truncate for readability
+            'inference': {
+                'generated_length': len(inference_result['generated_tokens']),
+                'generated_text_preview': inference_result['generated_text'][:500] + "...",
+                'timing': inference_result['timing']
+            },
+            'verifiers': all_verifier_stats,
+            'summary': {
+                'avg_accept_rate': avg_accept_rate,
+                'avg_overhead_percentage': avg_overhead,
+                'final_verdict': 'PASS' if avg_accept_rate > 0.95 else 'FAIL'
+            }
+        }
+
+    def run(self):
+        """Run full experiment with multiple prompts"""
+        self.logger.info("=" * 80)
+        self.logger.info(f"EXPERIMENT 1: Homogeneous Hardware Baseline")
+        self.logger.info(f"Model: {self.model_name}, Device: {self.device}")
+        self.logger.info(f"Number of verifiers per trial: {self.num_verifiers}")
+        self.logger.info("=" * 80)
+
+        prompts = self.get_prompts(num_prompts=3)
+        all_results = []
+
+        for trial_id, prompt in enumerate(prompts, start=1):
+            result = self.run_single_trial(prompt, trial_id)
+            all_results.append(result)
+
+            # Save individual trial result
+            filename = f"{self.model_name}_{self.device}_trial{trial_id}.json"
+            self.save_result(result, filename)
+
+        # Save aggregated summary
+        summary = {
+            'experiment': 'exp1_homogeneous',
+            'model': self.model_name,
+            'device': self.device,
+            'num_trials': len(all_results),
+            'num_verifiers_per_trial': self.num_verifiers,
+            'trials': all_results,
+            'aggregate': {
+                'avg_accept_rate': sum(r['summary']['avg_accept_rate'] for r in all_results) / len(all_results),
+                'avg_overhead_percentage': sum(r['summary']['avg_overhead_percentage'] for r in all_results) / len(all_results),
+                'pass_rate': sum(1 for r in all_results if r['summary']['final_verdict'] == 'PASS') / len(all_results)
+            }
+        }
+
+        self.save_result(summary, f"{self.model_name}_{self.device}_summary.json")
+
+        self.logger.info("=" * 80)
+        self.logger.info("EXPERIMENT 1 COMPLETE")
+        self.logger.info(f"Average accept rate: {summary['aggregate']['avg_accept_rate']*100:.2f}%")
+        self.logger.info(f"Average overhead: {summary['aggregate']['avg_overhead_percentage']:.2f}%")
+        self.logger.info(f"Trial pass rate: {summary['aggregate']['pass_rate']*100:.2f}%")
+        self.logger.info("=" * 80)
+
 
 def main():
-    logger = setup_logger("exp1_homogeneous")
-    model_name = "qwen2.5-7b"
-    device = "cuda"  # 或 "mps"
-    prompt = "请详细解释区块链共识机制的演进历史，包括PoW、PoS、DPoS等主要共识算法。"
-    result = run_exp1_single(model_name, device, prompt, 1, "data/raw/exp1", logger)
-    logger.info(f"\n验证开销: {result['overhead']['percentage']:.2f}%")
-    logger.info(f"最终判定: {result['verdict']}")
+    # ========== A100 Configuration ==========
+    # Model: Use any model from configs/models.yaml
+    # Options: "qwen2.5-7b", "llama-3.1-8b", "mistral-7b"
+    MODEL_NAME = "qwen2.5-7b"
+
+    # Device: Use cuda:0 for first A100
+    # For multi-GPU experiments, can use cuda:0, cuda:1, etc.
+    DEVICE = "cuda:0"
+
+    # Number of verification runs per trial (论文中用3个verifier)
+    NUM_VERIFIERS = 3
+
+    # Number of different prompts to test
+    NUM_PROMPTS = 3
+
+    print("=" * 80)
+    print(f"Experiment 1 Configuration:")
+    print(f"  Model: {MODEL_NAME}")
+    print(f"  Device: {DEVICE}")
+    print(f"  Verifiers per trial: {NUM_VERIFIERS}")
+    print(f"  Number of prompts: {NUM_PROMPTS}")
+    print("=" * 80)
+
+    exp = Exp1Homogeneous(
+        model_name=MODEL_NAME,
+        device=DEVICE,
+        num_verifiers=NUM_VERIFIERS
+    )
+    exp.run()
+
 
 if __name__ == "__main__":
     main()
