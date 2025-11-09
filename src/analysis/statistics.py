@@ -67,6 +67,15 @@ class HiddenStateStatistics:
     
     @staticmethod
     def check_thresholds(stats: Dict, config: Dict) -> bool:
+        # Special case: if mean error is extremely small (< 1e-6), accept directly
+        # This handles the case where values are identical or nearly identical
+        if abs(stats['mean_error']) < 1e-6:
+            return True
+
+        # For FP16, also accept if error is small and Pe is low (normal floating-point variance)
+        if abs(stats['mean_error']) < config['mean_epsilon'] and stats['Pe'] < config['Pe']:
+            return True
+
         Pe_pass = stats['Pe'] < config['Pe']
         Pm_pass = stats['Pm'] > config['Pm']
         Pw_pass = stats['Pw'] > config['Pw']

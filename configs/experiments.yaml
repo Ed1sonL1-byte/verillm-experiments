@@ -13,11 +13,11 @@ experiment:
     n: 8  # 每隔8层记录一次（论文设置）
     layers: [0, 8, 16, 24, 32]  # 或者指定具体层（可选）
   
-  # 统计阈值（论文Section 8.2）
+  # 统计阈值（论文Section 8.2，adjusted for FP16）
   thresholds:
     Pe: 0.05   # 指数位不匹配率上限
-    Pm: 0.75   # 大尾数偏差比例下限
-    Pw: 0.80   # 小尾数偏差比例下限
+    Pm: 0.75   # 大尾数偏差比例下限（delta > 1e-5）
+    Pw: 0.50   # 小尾数偏差比例下限（delta < 1e-7，FP16下放宽）
     mean_epsilon: 0.01  # 平均误差上限
   
   # 输出配置

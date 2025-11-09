@@ -16,17 +16,21 @@ Metrics:
 - Acceptance rate
 """
 
+from pathlib import Path
 from base_experiment import BaseExperiment
 from src.models.model_loader import ModelLoader
 from src.inference.inferencer import Inferencer
 from src.verification.verifier import Verifier
+
+# Get project root
+project_root = Path(__file__).parent.parent
 
 
 class Exp1Homogeneous(BaseExperiment):
     def __init__(self, model_name: str, device: str, num_verifiers: int = 3):
         super().__init__(
             exp_name=f"exp1_homogeneous_{model_name}_{device}",
-            output_dir=f"data/raw/exp1"
+            output_dir=str(project_root / "data/raw/exp1")
         )
         self.model_name = model_name
         self.device = device

@@ -26,11 +26,11 @@ class BaseExperiment:
         self.logger = setup_logger(exp_name)
 
         # Load experiment configuration
-        with open("configs/experiments.yaml", 'r') as f:
+        with open(project_root / "configs/experiments.yaml", 'r') as f:
             self.exp_config = yaml.safe_load(f)
 
         # Load prompts
-        with open("configs/prompts.yaml", 'r') as f:
+        with open(project_root / "configs/prompts.yaml", 'r') as f:
             self.prompts_config = yaml.safe_load(f)
 
     def get_prompts(self, num_prompts: int = 3) -> List[str]:

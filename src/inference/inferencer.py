@@ -26,18 +26,30 @@ class Inferencer:
         start_time = time.perf_counter()
         with torch.no_grad():
             for step in tqdm(range(max_new_tokens), desc="生成中"):
+                # Generate next token
                 outputs = self.model(input_ids=input_ids, attention_mask=attention_mask,
                                    output_hidden_states=True, return_dict=True)
                 logits = outputs.logits[:, -1, :] / temperature
                 probs = torch.softmax(logits, dim=-1)
                 next_token = torch.multinomial(probs, num_samples=1)
                 generated_tokens.append(next_token.item())
-                hidden_states_record[step] = {}
-                for layer_idx in range(0, len(outputs.hidden_states), sample_layers_every):
-                    hidden = outputs.hidden_states[layer_idx][:, -1, :]
-                    hidden_states_record[step][layer_idx] = hidden.cpu().numpy()
+
+                # Append the new token to input
                 input_ids = torch.cat([input_ids, next_token], dim=1)
                 attention_mask = torch.cat([attention_mask, torch.ones((1, 1), device=self.device)], dim=1)
+
+                # NOW record hidden states at the position of the newly generated token
+                # We need to run forward pass again with the updated input to get correct hidden states
+                outputs_for_hidden = self.model(input_ids=input_ids, attention_mask=attention_mask,
+                                               output_hidden_states=True, return_dict=True)
+
+                hidden_states_record[step] = {}
+                # Record hidden state at the position of the generated token (prompt_length + step)
+                token_position = prompt_length + step
+                for layer_idx in range(0, len(outputs_for_hidden.hidden_states), sample_layers_every):
+                    hidden = outputs_for_hidden.hidden_states[layer_idx][:, token_position, :]
+                    hidden_states_record[step][layer_idx] = hidden.cpu().numpy()
+
                 if next_token.item() == self.tokenizer.eos_token_id:
                     break
         end_time = time.perf_counter()
