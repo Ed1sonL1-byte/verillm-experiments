@@ -30,6 +30,7 @@ import json
 
 # Import experiment classes
 from exp1_homogeneous import Exp1Homogeneous
+from exp1_parallel_verification import Exp1ParallelVerification
 from exp2_heterogeneous import Exp2Heterogeneous
 from exp3_quantized_inference_homogeneous import Exp3QuantizedInferenceHomogeneous
 from exp4_quantized_inference_heterogeneous import Exp4QuantizedInferenceHeterogeneous
@@ -141,23 +142,19 @@ class ParallelExperimentRunner:
         exp_configs = {
             'exp1': (Exp1Homogeneous, {'num_verifiers': 3}),
             'exp2': (Exp2Heterogeneous, {
-                'inference_device': 'cuda:0',
-                'verification_device': 'cuda:1',
+                # Devices will be assigned dynamically below
                 'num_verifiers': 3
             }),
             'exp3': (Exp3QuantizedInferenceHomogeneous, {
-                'inference_device': 'cuda:0',
-                'verification_device': 'cuda:0',
+                # Devices will be assigned dynamically below
                 'num_verifiers': 3
             }),
             'exp4': (Exp4QuantizedInferenceHeterogeneous, {
-                'inference_device': 'cuda:0',
-                'verification_device': 'cuda:1',
+                # Devices will be assigned dynamically below
                 'num_verifiers': 3
             }),
             'exp5': (Exp5FullInferenceQuantizedVerification, {
-                'inference_device': 'cuda:0',
-                'verification_device': 'cuda:0',
+                # Devices will be assigned dynamically below
                 'num_verifiers': 3
             }),
         }
@@ -167,13 +164,23 @@ class ParallelExperimentRunner:
             gpu_id = self.gpu_ids[idx % self.num_gpus]
             exp_class, kwargs = exp_configs[exp_name]
 
-            # Override device in kwargs for homogeneous experiments
-            if exp_name in ['exp1', 'exp3', 'exp5']:
+            # Dynamically assign devices for ALL experiments to use all 3 GPUs
+            if exp_name == 'exp1':
+                # Homogeneous: single device
                 kwargs = {**kwargs, 'device': f"cuda:{gpu_id}"}
-                if 'inference_device' in kwargs:
-                    kwargs['inference_device'] = f"cuda:{gpu_id}"
-                if 'verification_device' in kwargs:
-                    kwargs['verification_device'] = f"cuda:{gpu_id}"
+
+            elif exp_name in ['exp2', 'exp4']:
+                # Heterogeneous: use current GPU for inference, next GPU for verification
+                next_gpu_id = self.gpu_ids[(idx + 1) % self.num_gpus]
+                kwargs = {**kwargs,
+                          'inference_device': f"cuda:{gpu_id}",
+                          'verification_device': f"cuda:{next_gpu_id}"}
+
+            elif exp_name in ['exp3', 'exp5']:
+                # Homogeneous with separate device params: same GPU for both
+                kwargs = {**kwargs,
+                          'inference_device': f"cuda:{gpu_id}",
+                          'verification_device': f"cuda:{gpu_id}"}
 
             tasks.append((exp_class, exp_name, gpu_id, kwargs))
 
