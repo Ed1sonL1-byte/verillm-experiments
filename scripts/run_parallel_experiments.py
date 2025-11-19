@@ -84,9 +84,9 @@ class ParallelExperimentRunner:
 
     def run_trial_on_gpu(self, exp_class, exp_name: str, gpu_id: int,
                          prompt: str, trial_id: int, max_tokens: int,
-                         min_tokens: int, **kwargs) -> Dict:
+                         min_tokens: int, input_category: str = "medium", **kwargs) -> Dict:
         """Run a single trial on specified GPU"""
-        print(f"\n[GPU {gpu_id}] Starting {exp_name} trial {trial_id}...")
+        print(f"\n[GPU {gpu_id}] Starting {exp_name} trial {trial_id} ({input_category})...")
         start_time = time.time()
 
         try:
@@ -97,7 +97,7 @@ class ParallelExperimentRunner:
                 **kwargs
             )
 
-            result = exp.run_single_trial(prompt, trial_id, max_tokens, min_tokens)
+            result = exp.run_single_trial(prompt, trial_id, max_tokens, min_tokens, input_category)
 
             # Save result
             filename = f"{exp_name}_gpu{gpu_id}_trial{trial_id}.json"
@@ -227,12 +227,12 @@ class ParallelExperimentRunner:
         tasks = []
         for trial_id in range(1, num_trials + 1):
             gpu_id = self.gpu_ids[(trial_id - 1) % self.num_gpus]
-            prompt, max_tokens, min_tokens = prompts_with_config[trial_id - 1]
+            prompt, max_tokens, min_tokens, input_category = prompts_with_config[trial_id - 1]
 
             kwargs = {**base_kwargs, 'num_verifiers': 3}
             tasks.append((
                 exp_class, experiment, gpu_id, prompt,
-                trial_id, max_tokens, min_tokens, kwargs
+                trial_id, max_tokens, min_tokens, input_category, kwargs
             ))
 
         results = []
@@ -241,9 +241,9 @@ class ParallelExperimentRunner:
                 executor.submit(
                     self.run_trial_on_gpu,
                     exp_class, exp_name, gpu_id, prompt,
-                    trial_id, max_tokens, min_tokens, **kwargs
+                    trial_id, max_tokens, min_tokens, input_category, **kwargs
                 ): trial_id
-                for exp_class, exp_name, gpu_id, prompt, trial_id, max_tokens, min_tokens, kwargs in tasks
+                for exp_class, exp_name, gpu_id, prompt, trial_id, max_tokens, min_tokens, input_category, kwargs in tasks
             }
 
             for future in as_completed(futures):
