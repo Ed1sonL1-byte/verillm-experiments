@@ -61,10 +61,10 @@ class ThresholdOptimizer:
 
             # Get a single prompt with config for consistency
             prompts_with_config = exp.get_prompts_with_config(num_prompts=1)
-            prompt, max_tokens, min_tokens = prompts_with_config[0]
+            prompt, max_tokens, min_tokens, input_category = prompts_with_config[0]
 
             # Run single trial
-            result = exp.run_single_trial(prompt, trial_id=trial + 1, max_tokens=max_tokens, min_tokens=min_tokens)
+            result = exp.run_single_trial(prompt, trial_id=trial + 1, max_tokens=max_tokens, min_tokens=min_tokens, input_category=input_category)
 
             # Extract statistics from all verifiers
             for verifier_data in result['verifiers']:

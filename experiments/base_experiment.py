@@ -36,20 +36,20 @@ class BaseExperiment:
     def get_prompts(self, num_prompts: int = 3) -> List[str]:
         """Get diverse prompts for testing"""
         prompts = []
-        for prompt_type in ['type_a', 'type_b', 'type_c']:
+        for prompt_type in ['short', 'medium', 'long']:
             templates = self.prompts_config['prompts'][prompt_type]['templates']
             prompts.extend(templates[:num_prompts // 3 + 1])
         return prompts[:num_prompts]
 
-    def get_prompts_with_config(self, num_prompts: int = 3) -> List[Tuple[str, int, int]]:
+    def get_prompts_with_config(self, num_prompts: int = 3) -> List[Tuple[str, int, int, str]]:
         """
         Get diverse prompts with their generation configs.
 
         Returns:
-            List of tuples: (prompt_text, max_tokens, min_tokens)
+            List of tuples: (prompt_text, max_tokens, min_tokens, input_category)
         """
         prompts_with_config = []
-        prompt_types = ['type_a', 'type_b', 'type_c']
+        prompt_types = ['short', 'medium', 'long']
 
         # Distribute prompts across types
         prompts_per_type = num_prompts // len(prompt_types)
@@ -58,14 +58,14 @@ class BaseExperiment:
         for idx, prompt_type in enumerate(prompt_types):
             type_config = self.prompts_config['prompts'][prompt_type]
             templates = type_config['templates']
-            max_tokens = type_config.get('max_tokens', 3000)
+            max_tokens = type_config.get('max_tokens', 4000)
             min_tokens = type_config.get('min_tokens', 500)
 
             # Take more prompts from first types if there's a remainder
             num_to_take = prompts_per_type + (1 if idx < remainder else 0)
 
             for template in templates[:num_to_take]:
-                prompts_with_config.append((template, max_tokens, min_tokens))
+                prompts_with_config.append((template, max_tokens, min_tokens, prompt_type))
 
         return prompts_with_config[:num_prompts]
 

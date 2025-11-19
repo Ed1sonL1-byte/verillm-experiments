@@ -50,10 +50,12 @@ class Exp4QuantizedInferenceHeterogeneous(BaseExperiment):
         self.verification_device = verification_device
         self.num_verifiers = num_verifiers
 
-    def run_single_trial(self, prompt: str, trial_id: int, max_tokens: int = 3000, min_tokens: int = 500) -> dict:
+    def run_single_trial(self, prompt: str, trial_id: int, max_tokens: int = 4000,
+                         min_tokens: int = 500, input_category: str = "medium") -> dict:
         """Run a single inference + verification trial with quantized inference and heterogeneous hardware"""
         self.logger.info(f"=" * 80)
         self.logger.info(f"Trial {trial_id}: {self.model_name}")
+        self.logger.info(f"Input category: {input_category}")
         self.logger.info(f"Inference Device: {self.inference_device} (QUANTIZED)")
         self.logger.info(f"Verification Device: {self.verification_device} (FULL-PRECISION)")
         self.logger.info(f"Prompt length: {len(prompt)} chars")
@@ -187,8 +189,8 @@ class Exp4QuantizedInferenceHeterogeneous(BaseExperiment):
         prompts_with_config = self.get_prompts_with_config(num_prompts=3)
         all_results = []
 
-        for trial_id, (prompt, max_tokens, min_tokens) in enumerate(prompts_with_config, start=1):
-            result = self.run_single_trial(prompt, trial_id, max_tokens, min_tokens)
+        for trial_id, (prompt, max_tokens, min_tokens, input_category) in enumerate(prompts_with_config, start=1):
+            result = self.run_single_trial(prompt, trial_id, max_tokens, min_tokens, input_category)
             all_results.append(result)
 
             # Save individual trial result
