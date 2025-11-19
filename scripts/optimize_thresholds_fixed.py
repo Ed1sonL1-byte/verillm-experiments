@@ -5,24 +5,28 @@ This script runs multiple trials across different experiment configurations
 to collect statistical data and determine optimal thresholds for verification.
 
 Usage:
-    python scripts/optimize_thresholds.py --experiment exp1 --trials 20
-    python scripts/optimize_thresholds.py --experiment all --trials 10
+    python scripts/optimize_thresholds_fixed.py --experiment exp1 --trials 20
+    python scripts/optimize_thresholds_fixed.py --experiment all --trials 10
 """
 
 import sys
 from pathlib import Path
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
+sys.path.insert(0, str(project_root / "experiments"))  # 添加experiments目录到路径
 
 import json
 import argparse
 import numpy as np
 from typing import Dict, List
+import matplotlib
+matplotlib.use('Agg')  # 使用非GUI后端
 import matplotlib.pyplot as plt
 import seaborn as sns
 from datetime import datetime
 
-# Import experiment classes
+# Import experiment classes - 修改导入方式
+from experiments.base_experiment import BaseExperiment
 from experiments.exp1_homogeneous import Exp1Homogeneous
 from experiments.exp2_heterogeneous import Exp2Heterogeneous
 from experiments.exp3_quantized_inference_homogeneous import Exp3QuantizedInferenceHomogeneous
@@ -111,31 +115,27 @@ class ThresholdOptimizer:
         # and 5th percentile for accept_rate
 
         recommended = {
-            'Pe_max': min(0.10, analysis['Pe']['percentile_95'] * 1.2),  # 95th percentile + 20% margin
-            'Pm_min': max(0.50, analysis['Pm']['percentile_50'] * 0.8),  # 50th percentile - 20% margin
-            'Pw_min': max(0.30, analysis['Pw']['percentile_50'] * 0.8),  # 50th percentile - 20% margin
+            'Pe_max': min(0.10, analysis['Pe']['percentile_95'] * 1.2),
+            'Pm_min': max(0.50, analysis['Pm']['percentile_50'] * 0.8),
+            'Pw_min': max(0.30, analysis['Pw']['percentile_50'] * 0.8),
             'mean_error_max': min(0.10, analysis['mean_error']['percentile_95'] * 1.2),
-            'accept_rate_min': max(0.70, analysis['accept_rate']['percentile_50'] * 0.9),  # Conservative
+            'accept_rate_min': max(0.70, analysis['accept_rate']['percentile_50'] * 0.9),
         }
 
         # Adjust based on experiment type
         if 'homogeneous' in experiment_type.lower() and 'quantized' not in experiment_type.lower():
-            # Stricter for homogeneous FP16
             recommended['accept_rate_min'] = max(0.95, analysis['accept_rate']['percentile_50'] * 0.95)
             recommended['Pe_max'] = min(0.02, analysis['Pe']['percentile_90'])
 
         elif 'heterogeneous' in experiment_type.lower() and 'quantized' not in experiment_type.lower():
-            # Moderate for heterogeneous FP16
             recommended['accept_rate_min'] = max(0.90, analysis['accept_rate']['percentile_50'] * 0.90)
             recommended['Pe_max'] = min(0.05, analysis['Pe']['percentile_95'])
 
         elif 'quantized' in experiment_type.lower() and 'homogeneous' in experiment_type.lower():
-            # Relaxed for quantized + homogeneous
             recommended['accept_rate_min'] = max(0.80, analysis['accept_rate']['percentile_50'] * 0.85)
             recommended['Pe_max'] = min(0.10, analysis['Pe']['percentile_95'])
 
         elif 'quantized' in experiment_type.lower() and 'heterogeneous' in experiment_type.lower():
-            # Most relaxed for quantized + heterogeneous
             recommended['accept_rate_min'] = max(0.70, analysis['accept_rate']['percentile_50'] * 0.80)
             recommended['Pe_max'] = min(0.15, analysis['Pe']['percentile_99'])
 
