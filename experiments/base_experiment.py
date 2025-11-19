@@ -41,6 +41,34 @@ class BaseExperiment:
             prompts.extend(templates[:num_prompts // 3 + 1])
         return prompts[:num_prompts]
 
+    def get_prompts_with_config(self, num_prompts: int = 3) -> List[Tuple[str, int, int]]:
+        """
+        Get diverse prompts with their generation configs.
+
+        Returns:
+            List of tuples: (prompt_text, max_tokens, min_tokens)
+        """
+        prompts_with_config = []
+        prompt_types = ['type_a', 'type_b', 'type_c']
+
+        # Distribute prompts across types
+        prompts_per_type = num_prompts // len(prompt_types)
+        remainder = num_prompts % len(prompt_types)
+
+        for idx, prompt_type in enumerate(prompt_types):
+            type_config = self.prompts_config['prompts'][prompt_type]
+            templates = type_config['templates']
+            max_tokens = type_config.get('max_tokens', 3000)
+            min_tokens = type_config.get('min_tokens', 500)
+
+            # Take more prompts from first types if there's a remainder
+            num_to_take = prompts_per_type + (1 if idx < remainder else 0)
+
+            for template in templates[:num_to_take]:
+                prompts_with_config.append((template, max_tokens, min_tokens))
+
+        return prompts_with_config[:num_prompts]
+
     def compare_hidden_states(self, inf_hs: Dict, ver_hs: Dict) -> Dict:
         """
         Compare hidden states from inference and verification.

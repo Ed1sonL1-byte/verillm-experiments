@@ -59,11 +59,12 @@ class ThresholdOptimizer:
             # Create experiment instance
             exp = experiment_class(**experiment_config['params'])
 
-            # Get a single prompt for consistency
-            prompts = exp.get_prompts(num_prompts=1)
+            # Get a single prompt with config for consistency
+            prompts_with_config = exp.get_prompts_with_config(num_prompts=1)
+            prompt, max_tokens, min_tokens = prompts_with_config[0]
 
             # Run single trial
-            result = exp.run_single_trial(prompts[0], trial_id=trial + 1)
+            result = exp.run_single_trial(prompt, trial_id=trial + 1, max_tokens=max_tokens, min_tokens=min_tokens)
 
             # Extract statistics from all verifiers
             for verifier_data in result['verifiers']:
