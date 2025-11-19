@@ -54,7 +54,7 @@ class Exp1Homogeneous(BaseExperiment):
 
         inference_result = inferencer.generate_with_hidden_states(
             prompt=prompt,
-            max_new_tokens=2000,
+            max_new_tokens=1500,
             temperature=0.7,
             top_p=0.9,
             sample_layers_every=8
