@@ -36,11 +36,12 @@ class Exp1Homogeneous(BaseExperiment):
         self.device = device
         self.num_verifiers = num_verifiers
 
-    def run_single_trial(self, prompt: str, trial_id: int) -> dict:
+    def run_single_trial(self, prompt: str, trial_id: int, max_tokens: int = 3000, min_tokens: int = 500) -> dict:
         """Run a single inference + verification trial"""
         self.logger.info(f"=" * 80)
         self.logger.info(f"Trial {trial_id}: {self.model_name} on {self.device}")
         self.logger.info(f"Prompt length: {len(prompt)} chars")
+        self.logger.info(f"Max output tokens: {max_tokens}, Min output tokens: {min_tokens}")
         self.logger.info(f"=" * 80)
 
         # Load model
@@ -54,7 +55,8 @@ class Exp1Homogeneous(BaseExperiment):
 
         inference_result = inferencer.generate_with_hidden_states(
             prompt=prompt,
-            max_new_tokens=1500,
+            max_new_tokens=max_tokens,
+            min_new_tokens=min_tokens,
             temperature=0.7,
             top_p=0.9,
             sample_layers_every=8
@@ -134,11 +136,11 @@ class Exp1Homogeneous(BaseExperiment):
         self.logger.info(f"Number of verifiers per trial: {self.num_verifiers}")
         self.logger.info("=" * 80)
 
-        prompts = self.get_prompts(num_prompts=3)
+        prompts_with_config = self.get_prompts_with_config(num_prompts=3)
         all_results = []
 
-        for trial_id, prompt in enumerate(prompts, start=1):
-            result = self.run_single_trial(prompt, trial_id)
+        for trial_id, (prompt, max_tokens, min_tokens) in enumerate(prompts_with_config, start=1):
+            result = self.run_single_trial(prompt, trial_id, max_tokens, min_tokens)
             all_results.append(result)
 
             # Save individual trial result
