@@ -124,6 +124,34 @@ python exp5_full_inference_quantized_verification.py
 - Exp 2: ~15-20 minutes (cross-device, 3 trials)
 - Exp 3-5: ~10-20 minutes (depends on quantization method)
 
+### 4.1 Multi-GPU Parallel Execution (Recommended for 3x Pro 6000)
+
+If you have multiple GPUs, use parallel execution for 3x speedup:
+
+```bash
+# Run all 5 experiments in parallel across 3 GPUs (~25 min vs 70 min sequential)
+python scripts/run_parallel_experiments.py --mode all --gpus 0 1 2
+
+# Run 30 trials of exp1 for threshold optimization (~15 min)
+python scripts/run_parallel_experiments.py \
+    --mode trials \
+    --experiment exp1 \
+    --trials 30 \
+    --gpus 0 1 2
+
+# Run specific experiments in parallel
+python scripts/run_parallel_experiments.py \
+    --mode experiments \
+    --experiments exp1 exp3 exp5 \
+    --gpus 0 1 2
+```
+
+**Benefits:**
+- Full GPU utilization (3x RTX PRO 6000)
+- 3x faster execution
+- Parallel threshold optimization with more trials
+- See `docs/PARALLEL_EXECUTION.md` for detailed guide
+
 ---
 
 ## Threshold Optimization
