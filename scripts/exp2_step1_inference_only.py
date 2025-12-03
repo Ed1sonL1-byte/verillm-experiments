@@ -6,6 +6,9 @@ The hidden states can then be transferred to a Mac for verification.
 
 Usage:
     python scripts/exp2_step1_inference_only.py --trials 10 --device cuda:0
+
+    # For faster inference with reduced tokens:
+    python scripts/exp2_step1_inference_only.py --trials 10 --device cuda:0 --max-tokens 1000
 """
 
 import sys
@@ -31,17 +34,39 @@ from base_experiment import BaseExperiment
 class Exp2InferenceOnly:
     """Run inference only and save hidden states for later verification"""
 
-    def __init__(self, model_name: str, device: str, output_dir: Path):
+    def __init__(self, model_name: str, device: str, output_dir: Path, max_tokens_override: int = None):
         self.model_name = model_name
         self.device = device
         self.output_dir = output_dir
         self.output_dir.mkdir(parents=True, exist_ok=True)
         self.logger = setup_logger(f"exp2_inference_{model_name}_{device}")
+        self.max_tokens_override = max_tokens_override
+
+        # Model will be loaded once and reused
+        self.model = None
+        self.tokenizer = None
 
         # Load prompts config
         import yaml
         with open(project_root / "configs/prompts.yaml", 'r') as f:
             self.prompts_config = yaml.safe_load(f)
+
+    def load_model(self):
+        """Load model once for all trials"""
+        if self.model is None:
+            self.logger.info(f"Loading model {self.model_name} to {self.device}...")
+            model_loader = ModelLoader()
+            self.model, self.tokenizer = model_loader.load_model(self.model_name, device=self.device)
+            self.logger.info("Model loaded successfully")
+
+    def unload_model(self):
+        """Free GPU memory"""
+        if self.model is not None:
+            del self.model
+            self.model = None
+            self.tokenizer = None
+            torch.cuda.empty_cache()
+            self.logger.info("Model unloaded, GPU memory freed")
 
     def get_prompts_with_config(self, num_prompts: int = 10):
         """Get diverse prompts with their generation configs"""
@@ -67,20 +92,23 @@ class Exp2InferenceOnly:
     def run_inference(self, prompt: str, trial_id: int, max_tokens: int,
                       min_tokens: int, input_category: str) -> dict:
         """Run inference and return results with hidden states"""
+        # Apply max_tokens override if set
+        if self.max_tokens_override:
+            max_tokens = self.max_tokens_override
+
         self.logger.info("=" * 80)
         self.logger.info(f"Trial {trial_id}: {self.model_name} on {self.device}")
         self.logger.info(f"Input category: {input_category}")
         self.logger.info(f"Prompt length: {len(prompt)} chars")
-        self.logger.info(f"Max tokens: {max_tokens}, Min tokens: {min_tokens}")
+        self.logger.info(f"Max tokens: {max_tokens}")
         self.logger.info("=" * 80)
 
-        # Load model
-        self.logger.info(f"Loading model {self.model_name} to {self.device}...")
-        model_loader = ModelLoader()
-        model, tokenizer = model_loader.load_model(self.model_name, device=self.device)
+        # Model should already be loaded
+        if self.model is None:
+            self.load_model()
 
-        # Run inference
-        inferencer = Inferencer(model, tokenizer, self.device, self.logger)
+        # Run inference (reuse loaded model)
+        inferencer = Inferencer(self.model, self.tokenizer, self.device, self.logger)
         self.logger.info("Starting inference (Prefill + Decode)...")
 
         inference_result = inferencer.generate_with_hidden_states(
@@ -93,10 +121,6 @@ class Exp2InferenceOnly:
 
         self.logger.info(f"Inference complete: {len(inference_result['generated_tokens'])} tokens")
         self.logger.info(f"Inference time: {inference_result['timing']['total_time']:.2f}s")
-
-        # Free GPU memory
-        del model
-        torch.cuda.empty_cache()
 
         return inference_result
 
@@ -147,7 +171,12 @@ class Exp2InferenceOnly:
         self.logger.info(f"Device: {self.device}")
         self.logger.info(f"Number of trials: {num_trials}")
         self.logger.info(f"Output directory: {self.output_dir}")
+        if self.max_tokens_override:
+            self.logger.info(f"Max tokens override: {self.max_tokens_override}")
         self.logger.info("=" * 80)
+
+        # Load model once before all trials
+        self.load_model()
 
         prompts_config = self.get_prompts_with_config(num_prompts=num_trials)
         all_files = []
@@ -156,7 +185,7 @@ class Exp2InferenceOnly:
             self.logger.info(f"\n===== Trial {trial_id}/{num_trials} ({category}) =====")
 
             try:
-                # Run inference
+                # Run inference (model already loaded)
                 result = self.run_inference(prompt, trial_id, max_tokens, min_tokens, category)
 
                 # Save results
@@ -169,6 +198,9 @@ class Exp2InferenceOnly:
                 self.logger.error(f"Trial {trial_id} failed: {e}")
                 import traceback
                 traceback.print_exc()
+
+        # Unload model after all trials
+        self.unload_model()
 
         # Save summary
         summary = {
@@ -203,6 +235,8 @@ def main():
                         help='Device for inference (default: cuda:0)')
     parser.add_argument('--trials', type=int, default=10,
                         help='Number of trials (default: 10)')
+    parser.add_argument('--max-tokens', type=int, default=None,
+                        help='Override max tokens for faster testing (default: use config)')
     parser.add_argument('--output-dir', type=str, default=None,
                         help='Output directory (default: data/raw/exp2/inference)')
 
@@ -213,7 +247,8 @@ def main():
     runner = Exp2InferenceOnly(
         model_name=args.model,
         device=args.device,
-        output_dir=output_dir
+        output_dir=output_dir,
+        max_tokens_override=args.max_tokens
     )
 
     runner.run(num_trials=args.trials)
