@@ -1,49 +1,64 @@
-# 提示词模板配置 - 基于对话长度分类
+# Prompt Template Configuration - Categorized by Dialogue Length
 
 prompts:
   # ===== SHORT INPUT: ~300 tokens =====
-  # 适用场景：单轮简单问答，快速技术咨询
+  # Scenario: Single-turn simple Q&A, quick technical consultation
   short:
-    name: "短对话"
-    description: "单轮简单问答场景，测试基础推理能力"
+    name: "Short Dialogue"
+    description: "Single-turn simple Q&A scenario, testing basic reasoning ability"
     input_tokens: 300
     max_tokens: 4000
     min_tokens: 500
     templates:
       - |
-        请解释一下区块链中的共识机制是什么？具体来说，PoW（工作量证明）和PoS（权益证明）有什么区别？各自的优缺点是什么？在什么场景下应该选择哪种共识机制？请给出具体的例子说明。
+        Please explain what consensus mechanisms are in blockchain. Specifically, what are the differences between PoW (Proof of Work) and PoS (Proof of Stake)? What are the pros and cons of each? In what scenarios should you choose which consensus mechanism? Please provide specific examples to illustrate.
 
       - |
-        我需要用Python实现一个简单的LRU缓存。要求：1）支持get和put操作；2）当缓存满时自动淘汰最久未使用的项；3）时间复杂度O(1)。请给出完整的实现代码，并解释你的设计思路，特别是如何保证O(1)的时间复杂度。
+        I need to implement a simple LRU cache in Python. Requirements: 1) Support get and put operations; 2) Automatically evict the least recently used item when the cache is full; 3) O(1) time complexity. Please provide the complete implementation code and explain your design approach, especially how to ensure O(1) time complexity.
 
       - |
-        什么是Transformer架构？它相比传统的RNN和LSTM有哪些优势？Self-attention机制是如何工作的？为什么Transformer在NLP任务上表现得这么好？请用通俗易懂的语言解释，并给出一些实际应用的例子。
+        What is the Transformer architecture? What advantages does it have over traditional RNNs and LSTMs? How does the self-attention mechanism work? Why does Transformer perform so well on NLP tasks? Please explain in simple terms and provide some practical application examples.
 
       - |
-        请分析一下分布式系统中的CAP定理。CAP分别代表什么？为什么三者不能同时满足？在实际系统设计中，应该如何权衡？请举例说明MongoDB、Redis、Cassandra等系统是如何做出选择的。
+        Please analyze the CAP theorem in distributed systems. What do C, A, and P stand for? Why can't all three be satisfied simultaneously? How should you make trade-offs in actual system design? Please give examples of how MongoDB, Redis, Cassandra and other systems make their choices.
 
       - |
-        解释一下Python中的装饰器（decorator）是什么？它的工作原理是什么？有哪些常见的使用场景？请给出2-3个实用的装饰器示例，并说明它们解决了什么问题。
+        Explain what decorators are in Python. How do they work? What are some common use cases? Please provide 2-3 practical decorator examples and explain what problems they solve.
+
+      - |
+        What is Docker and how does containerization differ from virtualization? Explain the key concepts like images, containers, volumes, and networks. When should you use Docker in a software development workflow? Please provide examples of common use cases.
+
+      - |
+        Explain the concept of Big O notation in algorithm analysis. What do O(1), O(n), O(log n), O(n^2), and O(n log n) mean? Give examples of algorithms with each complexity. How do you analyze the time and space complexity of a piece of code?
+
+      - |
+        What is the difference between SQL and NoSQL databases? When would you choose one over the other? Compare popular options like PostgreSQL, MongoDB, Redis, and Cassandra in terms of data model, scalability, and use cases.
+
+      - |
+        Explain how HTTPS works and why it's important for web security. What is TLS/SSL? How does the certificate verification process work? What are the differences between symmetric and asymmetric encryption in this context?
+
+      - |
+        What are microservices and how do they compare to monolithic architecture? What are the benefits and challenges of microservices? Explain concepts like service discovery, API gateway, and inter-service communication patterns.
 
   # ===== MEDIUM INPUT: ~1000 tokens =====
-  # 适用场景：包含代码上下文、需求说明、多轮对话
+  # Scenario: Contains code context, requirement descriptions, multi-turn dialogues
   medium:
-    name: "中等对话"
-    description: "包含代码上下文和详细需求的复杂任务"
+    name: "Medium Dialogue"
+    description: "Complex tasks with code context and detailed requirements"
     input_tokens: 1000
     max_tokens: 6000
     min_tokens: 1000
     templates:
       - |
-        我正在开发一个分布式机器学习训练系统，需要实现一个任务调度器。系统的基本架构如下：
+        I am developing a distributed machine learning training system and need to implement a task scheduler. The basic architecture of the system is as follows:
 
-        **背景信息：**
-        - 有多个GPU节点（每个节点有4-8张GPU卡）
-        - 训练任务有不同的优先级和资源需求
-        - 需要支持任务排队、抢占、故障恢复
-        - 每个任务需要指定：模型类型、数据集路径、GPU数量、优先级
+        **Background Information:**
+        - Multiple GPU nodes (each node has 4-8 GPU cards)
+        - Training tasks have different priorities and resource requirements
+        - Need to support task queuing, preemption, and failure recovery
+        - Each task needs to specify: model type, dataset path, number of GPUs, priority
 
-        **已有代码框架：**
+        **Existing Code Framework:**
         ```python
         class TaskScheduler:
             def __init__(self, gpu_nodes):
@@ -52,31 +67,31 @@ prompts:
                 self.running_tasks = {}
 
             def submit_task(self, task):
-                # TODO: 实现任务提交逻辑
+                # TODO: Implement task submission logic
                 pass
 
             def schedule(self):
-                # TODO: 实现调度算法
+                # TODO: Implement scheduling algorithm
                 pass
 
             def handle_failure(self, task_id):
-                # TODO: 实现故障处理
+                # TODO: Implement failure handling
                 pass
         ```
 
-        **需求：**
-        1. 实现submit_task方法：验证任务、加入队列、按优先级排序
-        2. 实现schedule方法：为等待的任务分配GPU资源，考虑资源碎片化问题
-        3. 实现handle_failure方法：任务失败时自动重试（最多3次）
-        4. 支持任务抢占：高优先级任务可以抢占低优先级任务的GPU
-        5. 添加监控：记录每个任务的等待时间、运行时间、资源利用率
+        **Requirements:**
+        1. Implement submit_task method: validate task, add to queue, sort by priority
+        2. Implement schedule method: allocate GPU resources for waiting tasks, consider resource fragmentation
+        3. Implement handle_failure method: automatically retry on task failure (max 3 times)
+        4. Support task preemption: high priority tasks can preempt GPUs from low priority tasks
+        5. Add monitoring: record wait time, run time, resource utilization for each task
 
-        请提供完整的实现代码，包含详细注释和错误处理。同时说明你的调度算法选择理由。
+        Please provide complete implementation code with detailed comments and error handling. Also explain your scheduling algorithm choice.
 
       - |
-        我在使用FastAPI开发一个用户认证服务，遇到了性能问题。当前实现如下：
+        I am using FastAPI to develop a user authentication service and have encountered performance issues. The current implementation is as follows:
 
-        **当前代码：**
+        **Current Code:**
         ```python
         from fastapi import FastAPI, Depends, HTTPException
         from sqlalchemy.orm import Session
@@ -106,71 +121,71 @@ prompts:
             return user.to_dict()
         ```
 
-        **问题：**
-        1. 每次请求都查询数据库，QPS只能达到500左右
-        2. Token验证没有过期时间，存在安全隐患
-        3. 没有实现token刷新机制
-        4. 数据库连接池经常耗尽
+        **Problems:**
+        1. Each request queries the database, QPS can only reach about 500
+        2. Token verification has no expiration time, posing a security risk
+        3. No token refresh mechanism implemented
+        4. Database connection pool is frequently exhausted
 
-        **优化要求：**
-        - 添加Redis缓存层，缓存用户信息和token
-        - 实现JWT的access token（15分钟）+ refresh token（7天）机制
-        - 使用依赖注入优化数据库会话管理
-        - 添加限流中间件防止暴力破解
-        - 目标QPS：5000+
+        **Optimization Requirements:**
+        - Add Redis caching layer to cache user information and tokens
+        - Implement JWT access token (15 minutes) + refresh token (7 days) mechanism
+        - Use dependency injection to optimize database session management
+        - Add rate limiting middleware to prevent brute force attacks
+        - Target QPS: 5000+
 
-        请给出优化后的完整代码实现，并解释每个优化点的作用和预期效果。
+        Please provide the complete optimized code implementation and explain the effect of each optimization point.
 
       - |
-        我需要设计一个实时数据处理pipeline，处理用户行为日志并进行异常检测。
+        I need to design a real-time data processing pipeline to process user behavior logs and perform anomaly detection.
 
-        **系统需求：**
-        - 数据源：Kafka topic，每秒10万条用户行为事件
-        - 事件类型：登录、点击、购买、搜索等
-        - 处理要求：实时计算用户行为特征，检测异常行为（如账号被盗、刷单等）
-        - 延迟要求：端到端延迟 < 1秒
+        **System Requirements:**
+        - Data source: Kafka topic, 100,000 user behavior events per second
+        - Event types: login, click, purchase, search, etc.
+        - Processing requirements: real-time calculation of user behavior features, detect abnormal behavior (such as account theft, fake orders, etc.)
+        - Latency requirement: end-to-end latency < 1 second
 
-        **技术栈：**
-        - Kafka作为消息队列
-        - Flink或Spark Streaming做流处理
-        - Redis存储用户最近行为特征
-        - PostgreSQL存储异常事件
+        **Tech Stack:**
+        - Kafka as message queue
+        - Flink or Spark Streaming for stream processing
+        - Redis to store recent user behavior features
+        - PostgreSQL to store anomaly events
 
-        **核心逻辑：**
+        **Core Logic:**
         ```python
-        # 异常检测规则（示例）
+        # Anomaly detection rules (example)
         def detect_anomaly(user_id, events):
-            # 1. 短时间内大量登录失败
-            # 2. 异地登录（IP地址突然变化）
-            # 3. 购买行为异常（金额、频率）
-            # 4. 深夜活跃异常
+            # 1. Large number of failed logins in short time
+            # 2. Login from different location (sudden IP address change)
+            # 3. Abnormal purchase behavior (amount, frequency)
+            # 4. Abnormal late-night activity
             pass
         ```
 
-        **请实现：**
-        1. Kafka消费者配置（考虑吞吐量和可靠性）
-        2. Flink DataStream作业，实现滑动窗口聚合
-        3. 异常检测算法（至少3种规则）
-        4. 结果输出到Redis和PostgreSQL
-        5. 监控指标：处理延迟、吞吐量、异常检测准确率
+        **Please Implement:**
+        1. Kafka consumer configuration (considering throughput and reliability)
+        2. Flink DataStream job implementing sliding window aggregation
+        3. Anomaly detection algorithm (at least 3 rules)
+        4. Output results to Redis and PostgreSQL
+        5. Monitoring metrics: processing latency, throughput, anomaly detection accuracy
 
-        请提供架构设计图的文字描述、完整代码实现、以及性能优化建议。
+        Please provide architecture design description, complete code implementation, and performance optimization suggestions.
 
       - |
-        我在开发一个区块链节点的P2P网络层，需要实现节点发现和消息广播机制。
+        I am developing a P2P network layer for a blockchain node and need to implement node discovery and message broadcasting mechanisms.
 
-        **背景：**
-        - 去中心化网络，没有中心化的节点注册服务
-        - 节点数量：1000-10000个
-        - 需要快速发现新节点并同步区块链状态
-        - 消息类型：交易广播、区块广播、节点发现
+        **Background:**
+        - Decentralized network, no centralized node registration service
+        - Number of nodes: 1000-10000
+        - Need to quickly discover new nodes and synchronize blockchain state
+        - Message types: transaction broadcast, block broadcast, node discovery
 
-        **当前问题：**
-        1. 使用简单的flooding算法广播消息，网络带宽浪费严重
-        2. 新节点加入网络后，需要很长时间才能发现足够的peer
-        3. 没有实现节点声誉机制，容易受到女巫攻击
+        **Current Problems:**
+        1. Using simple flooding algorithm for message broadcasting, serious network bandwidth waste
+        2. After new nodes join the network, it takes a long time to discover enough peers
+        3. No node reputation mechanism implemented, vulnerable to Sybil attacks
 
-        **技术要求：**
+        **Technical Requirements:**
         ```python
         class P2PNode:
             def __init__(self, node_id, listen_port):
@@ -179,38 +194,38 @@ prompts:
                 self.routing_table = {}  # Kademlia DHT
 
             async def discover_peers(self):
-                # TODO: 实现节点发现（基于Kademlia或Gossip协议）
+                # TODO: Implement node discovery (based on Kademlia or Gossip protocol)
                 pass
 
             async def broadcast_message(self, message):
-                # TODO: 实现高效的消息广播（避免重复转发）
+                # TODO: Implement efficient message broadcasting (avoid duplicate forwarding)
                 pass
 
             async def sync_blockchain(self, peer):
-                # TODO: 从peer同步区块链数据
+                # TODO: Sync blockchain data from peer
                 pass
         ```
 
-        **实现要求：**
-        1. 使用Kademlia DHT实现节点发现
-        2. 实现gossip协议优化消息广播（减少冗余）
-        3. 添加bloom filter跟踪已见过的消息
-        4. 实现节点评分机制（根据响应时间、可靠性等）
-        5. 支持NAT穿透（STUN/TURN）
+        **Implementation Requirements:**
+        1. Use Kademlia DHT for node discovery
+        2. Implement gossip protocol to optimize message broadcasting (reduce redundancy)
+        3. Add bloom filter to track seen messages
+        4. Implement node scoring mechanism (based on response time, reliability, etc.)
+        5. Support NAT traversal (STUN/TURN)
 
-        请给出核心模块的实现代码，并解释协议选择的理由和预期的网络性能指标。
+        Please provide core module implementation code and explain the rationale for protocol choices and expected network performance metrics.
 
       - |
-        我正在实现一个向量数据库的索引结构，用于大规模embedding检索。
+        I am implementing an index structure for a vector database for large-scale embedding retrieval.
 
-        **需求场景：**
-        - 存储1亿条768维的文本embedding向量
-        - 查询需求：给定查询向量，返回最相似的top-k（k=10-100）个向量
-        - 延迟要求：P99 < 50ms
-        - 内存限制：单机64GB RAM
+        **Requirement Scenario:**
+        - Store 100 million 768-dimensional text embedding vectors
+        - Query requirement: given a query vector, return the top-k (k=10-100) most similar vectors
+        - Latency requirement: P99 < 50ms
+        - Memory limit: 64GB RAM on a single machine
 
-        **当前方案：**
-        使用暴力搜索（brute force），计算查询向量与所有向量的余弦相似度，然后排序。
+        **Current Approach:**
+        Using brute force search, calculating cosine similarity between query vector and all vectors, then sorting.
 
         ```python
         import numpy as np
@@ -232,93 +247,358 @@ prompts:
                 return [self.metadata[i] for i in top_k_indices]
         ```
 
-        **问题：**
-        当前方案在1亿数据量下，单次查询需要几秒钟，完全无法满足需求。
+        **Problem:**
+        The current approach takes several seconds for a single query on 100 million data points, completely failing to meet requirements.
 
-        **优化任务：**
-        1. 实现HNSW（Hierarchical Navigable Small World）索引结构
-        2. 支持增量添加向量（不需要重建整个索引）
-        3. 实现向量量化（PQ或ScalarQuantization）减少内存占用
-        4. 支持过滤查询（根据metadata条件过滤）
-        5. 持久化存储（支持索引保存和加载）
+        **Optimization Tasks:**
+        1. Implement HNSW (Hierarchical Navigable Small World) index structure
+        2. Support incremental vector addition (no need to rebuild entire index)
+        3. Implement vector quantization (PQ or ScalarQuantization) to reduce memory usage
+        4. Support filtered queries (filter based on metadata conditions)
+        5. Persistent storage (support index saving and loading)
 
-        请提供HNSW索引的核心实现代码，包括：
-        - 索引构建算法
-        - 搜索算法（greedy search）
-        - 向量量化逻辑
-        - 性能benchmark结果
+        Please provide core HNSW index implementation code, including:
+        - Index building algorithm
+        - Search algorithm (greedy search)
+        - Vector quantization logic
+        - Performance benchmark results
 
-        并说明在1亿数据量下的预期内存占用和查询延迟。
+        And explain expected memory usage and query latency on 100 million data points.
+
+      - |
+        I am building a CI/CD pipeline for a machine learning project and need to automate model training, evaluation, and deployment.
+
+        **Project Context:**
+        - Model: PyTorch-based image classification model
+        - Training data: 1TB of images stored in S3
+        - Training infrastructure: AWS SageMaker or self-managed Kubernetes cluster
+        - Deployment target: REST API endpoint with <100ms latency
+
+        **Current Manual Process:**
+        ```bash
+        # 1. Data preprocessing
+        python scripts/preprocess.py --input s3://bucket/raw --output s3://bucket/processed
+
+        # 2. Model training
+        python train.py --data s3://bucket/processed --epochs 50 --output models/
+
+        # 3. Evaluation
+        python evaluate.py --model models/best.pt --test-data s3://bucket/test
+
+        # 4. Manual deployment if metrics pass
+        kubectl apply -f deployment.yaml
+        ```
+
+        **Requirements:**
+        1. Trigger pipeline on code push or scheduled (daily retraining)
+        2. Automatic hyperparameter tuning (learning rate, batch size, architecture)
+        3. Model versioning and experiment tracking (MLflow or similar)
+        4. Automated evaluation against baseline model
+        5. Canary deployment with automatic rollback if error rate increases
+        6. Cost optimization: only use GPU instances during training
+
+        **Existing Infrastructure:**
+        - GitHub repository
+        - AWS account with SageMaker, EKS, S3
+        - Prometheus/Grafana for monitoring
+
+        Please provide:
+        1. Complete CI/CD pipeline configuration (GitHub Actions or similar)
+        2. Infrastructure as Code (Terraform) for training resources
+        3. Model serving setup with autoscaling
+        4. Monitoring and alerting configuration
+        5. Rollback automation logic
+
+      - |
+        I need to implement a rate limiting system for a multi-tenant API platform.
+
+        **System Requirements:**
+        - Support multiple rate limiting strategies: fixed window, sliding window, token bucket
+        - Per-tenant configuration (different tiers have different limits)
+        - Distributed rate limiting (works across multiple API server instances)
+        - Sub-millisecond overhead per request
+        - Handle burst traffic gracefully
+
+        **Current Architecture:**
+        ```
+        Load Balancer -> API Gateway (Kong) -> Microservices
+                                |
+                            Redis Cluster
+        ```
+
+        **Rate Limit Tiers:**
+        - Free tier: 100 requests/minute, 1000 requests/day
+        - Pro tier: 1000 requests/minute, 50000 requests/day
+        - Enterprise: Custom limits per endpoint
+
+        **Existing Code:**
+        ```python
+        class RateLimiter:
+            def __init__(self, redis_client):
+                self.redis = redis_client
+
+            def check_rate_limit(self, tenant_id: str, endpoint: str) -> bool:
+                # TODO: Implement rate limiting logic
+                # Should return True if request is allowed, False if rate limited
+                pass
+
+            def get_remaining_quota(self, tenant_id: str) -> dict:
+                # TODO: Return remaining quota for tenant
+                pass
+        ```
+
+        **Challenges:**
+        1. Redis operations must be atomic (race conditions with concurrent requests)
+        2. Need to handle Redis failures gracefully (fail-open vs fail-close?)
+        3. Rate limit headers must be accurate (X-RateLimit-Remaining, X-RateLimit-Reset)
+        4. Support for rate limit sharing across related endpoints (e.g., all write endpoints share a limit)
+
+        Please implement:
+        1. Complete RateLimiter class with all three strategies
+        2. Lua scripts for atomic Redis operations
+        3. Middleware integration for FastAPI/Express
+        4. Admin API for managing tenant limits
+        5. Monitoring dashboard metrics
+
+      - |
+        I am developing a WebSocket-based real-time collaboration feature for a document editing application.
+
+        **Feature Requirements:**
+        - Multiple users can edit the same document simultaneously
+        - Changes must be visible to all users within 100ms
+        - Handle offline editing and sync when reconnected
+        - Conflict resolution for concurrent edits
+        - Support for undo/redo across all users
+
+        **Technical Context:**
+        ```python
+        # Current simple implementation (has issues)
+        class DocumentSession:
+            def __init__(self, doc_id):
+                self.doc_id = doc_id
+                self.content = ""
+                self.connected_users = set()
+
+            async def on_user_edit(self, user_id, change):
+                self.content = apply_change(self.content, change)
+                await self.broadcast_to_all(change)
+
+            async def broadcast_to_all(self, change):
+                for user in self.connected_users:
+                    await user.send(change)
+        ```
+
+        **Problems with Current Implementation:**
+        1. Race condition: two users editing same position causes corruption
+        2. No conflict resolution: last write wins, losing edits
+        3. No offline support: disconnected users lose their changes
+        4. Memory issues: document state held in memory, no persistence
+
+        **Requirements:**
+        1. Implement Operational Transformation (OT) or CRDT for conflict resolution
+        2. WebSocket connection management with heartbeat and reconnection
+        3. Persistent storage with version history
+        4. Cursor position sharing (show where other users are editing)
+        5. Typing indicators and presence awareness
+
+        Please provide:
+        1. Complete server-side implementation using Python asyncio
+        2. Client-side JavaScript SDK for integration
+        3. Database schema for document versioning
+        4. Test cases for concurrent editing scenarios
+        5. Performance analysis for 100 concurrent editors
+
+      - |
+        I need to design and implement a job queue system for processing long-running tasks.
+
+        **Use Cases:**
+        - Video transcoding (takes 5-30 minutes per video)
+        - Report generation (aggregating data from multiple sources)
+        - Email campaigns (sending millions of emails)
+        - Data import/export (processing large CSV/Excel files)
+
+        **Requirements:**
+        - Reliable: jobs must not be lost, even if workers crash
+        - Scalable: handle thousands of concurrent jobs
+        - Prioritization: urgent jobs should be processed first
+        - Monitoring: track job status, progress, and errors
+        - Retry logic: automatic retry with exponential backoff
+
+        **Current Simple Implementation:**
+        ```python
+        import redis
+        import json
+
+        class SimpleQueue:
+            def __init__(self):
+                self.redis = redis.Redis()
+
+            def enqueue(self, job_type, payload):
+                job = {"type": job_type, "payload": payload}
+                self.redis.lpush("jobs", json.dumps(job))
+
+            def dequeue(self):
+                job_data = self.redis.brpop("jobs", timeout=5)
+                if job_data:
+                    return json.loads(job_data[1])
+                return None
+        ```
+
+        **Problems:**
+        1. No acknowledgment: if worker crashes, job is lost
+        2. No retry logic: failed jobs disappear
+        3. No priority support: all jobs treated equally
+        4. No progress tracking: can't show progress to users
+        5. No dead letter queue: no way to handle permanently failed jobs
+
+        **Tech Stack:**
+        - Python workers running on Kubernetes
+        - Redis available for queue storage
+        - PostgreSQL for persistent job metadata
+        - React frontend needs to show job progress
+
+        Please implement:
+        1. Complete job queue system with all requirements
+        2. Worker framework with graceful shutdown
+        3. REST API for job submission and status queries
+        4. WebSocket endpoint for real-time progress updates
+        5. Admin dashboard for monitoring and manual intervention
+        6. Database schema and Redis data structures
+
+      - |
+        I am implementing a custom authentication and authorization system for a SaaS application.
+
+        **Requirements:**
+        - Multi-tenant: each organization has its own users and permissions
+        - SSO support: integrate with Google, GitHub, and SAML providers
+        - Fine-grained permissions: role-based with custom permissions per resource
+        - API key management: for programmatic access
+        - Audit logging: track all authentication and authorization events
+
+        **Current Architecture:**
+        ```
+        Frontend (React) -> API Gateway -> Auth Service -> Resource Services
+                                              |
+                                          PostgreSQL (users, permissions)
+                                              |
+                                          Redis (sessions, tokens)
+        ```
+
+        **Data Models:**
+        ```python
+        class Organization:
+            id: UUID
+            name: str
+            sso_config: Optional[SSOConfig]
+
+        class User:
+            id: UUID
+            org_id: UUID
+            email: str
+            roles: List[Role]
+
+        class Role:
+            id: UUID
+            org_id: UUID
+            name: str
+            permissions: List[Permission]
+
+        class Permission:
+            resource: str  # e.g., "projects", "billing"
+            actions: List[str]  # e.g., ["read", "write", "delete"]
+            conditions: Optional[dict]  # e.g., {"owner": true}
+        ```
+
+        **Security Requirements:**
+        1. Password hashing with Argon2
+        2. JWT with short expiration (15 min) + refresh tokens
+        3. Rate limiting on login attempts
+        4. IP-based suspicious activity detection
+        5. Mandatory MFA for admin roles
+
+        **Integration Points:**
+        - Google OAuth 2.0
+        - GitHub OAuth
+        - SAML 2.0 for enterprise SSO
+        - SCIM for user provisioning
+
+        Please implement:
+        1. Complete auth service with FastAPI
+        2. SSO integration handlers
+        3. Permission checking middleware
+        4. API key generation and validation
+        5. Audit log service
+        6. Database migrations and schema
 
   # ===== LONG INPUT: ~3000 tokens =====
-  # 适用场景：完整对话历史、大型文档、复杂上下文
+  # Scenario: Complete dialogue history, large documents, complex context
   long:
-    name: "长对话"
-    description: "包含完整对话历史和复杂上下文的长文本任务"
+    name: "Long Dialogue"
+    description: "Long text tasks with complete dialogue history and complex context"
     input_tokens: 3000
     max_tokens: 8000
     min_tokens: 1500
     templates:
       - |
-        以下是一段关于分布式机器学习系统设计的完整对话历史，请基于这段对话，回答最后的问题。
+        The following is a complete dialogue history about distributed machine learning system design. Please answer the final question based on this dialogue.
 
-        **对话历史：**
+        **Dialogue History:**
 
-        用户：我想设计一个分布式训练系统，能够支持大规模深度学习模型训练。现在的问题是单机训练太慢了，一个100B参数的语言模型在单张A100上训练需要几个月。有什么好的方案吗？
+        User: I want to design a distributed training system that can support large-scale deep learning model training. The current problem is that single-machine training is too slow - a 100B parameter language model takes months to train on a single A100. Any good solutions?
 
-        助手：针对大规模模型训练，有几种主流的并行策略：
+        Assistant: For large-scale model training, there are several mainstream parallel strategies:
 
-        1. **数据并行**：将数据分片到多个GPU，每个GPU上运行完整模型的副本。适合模型能放入单GPU显存的情况。
+        1. **Data Parallelism**: Shard data across multiple GPUs, with each GPU running a complete copy of the model. Suitable when the model fits in single GPU memory.
 
-        2. **模型并行**：将模型层切分到不同GPU。比如layer 0-10在GPU0，layer 11-20在GPU1。适合模型太大无法放入单GPU的情况。
+        2. **Model Parallelism**: Split model layers across different GPUs. For example, layers 0-10 on GPU0, layers 11-20 on GPU1. Suitable when the model is too large to fit in a single GPU.
 
-        3. **流水线并行**：模型并行的改进版，将batch切分成多个micro-batch，在不同GPU上形成流水线，提高GPU利用率。
+        3. **Pipeline Parallelism**: An improved version of model parallelism, splitting batch into multiple micro-batches to form a pipeline across different GPUs, improving GPU utilization.
 
-        4. **张量并行**：在张量维度上切分模型，比如将一个大的矩阵乘法分解到多个GPU上并行计算。
+        4. **Tensor Parallelism**: Split the model on the tensor dimension, for example, decomposing a large matrix multiplication across multiple GPUs for parallel computation.
 
-        对于100B参数的模型，建议使用**3D并行**：数据并行 + 流水线并行 + 张量并行的组合。
+        For a 100B parameter model, I recommend using **3D Parallelism**: a combination of data parallelism + pipeline parallelism + tensor parallelism.
 
-        用户：能详细说说3D并行是怎么工作的吗？具体怎么配置？
+        User: Can you explain in detail how 3D parallelism works? How do you configure it specifically?
 
-        助手：3D并行是DeepSpeed和Megatron-LM使用的策略，将三种并行方式结合：
+        Assistant: 3D parallelism is the strategy used by DeepSpeed and Megatron-LM, combining three parallel approaches:
 
-        **架构示例（64张GPU）：**
-        - 张量并行度：8（同一层的参数分布在8张GPU上）
-        - 流水线并行度：4（模型分成4个stage）
-        - 数据并行度：2（两个完整的模型副本）
-        - 总GPU数：8 × 4 × 2 = 64
+        **Architecture Example (64 GPUs):**
+        - Tensor parallelism: 8 (parameters of the same layer distributed across 8 GPUs)
+        - Pipeline parallelism: 4 (model split into 4 stages)
+        - Data parallelism: 2 (two complete model replicas)
+        - Total GPUs: 8 x 4 x 2 = 64
 
-        **通信模式：**
-        1. 张量并行：需要频繁的all-reduce通信，要求GPU间有高带宽（最好在同一节点内，通过NVLink连接）
-        2. 流水线并行：只需要stage间传递激活值，通信量小，可以跨节点
-        3. 数据并行：每个batch结束后需要同步梯度，通信量中等
+        **Communication Patterns:**
+        1. Tensor parallelism: requires frequent all-reduce communication, needs high bandwidth between GPUs (preferably within the same node, connected via NVLink)
+        2. Pipeline parallelism: only needs to pass activation values between stages, low communication volume, can span nodes
+        3. Data parallelism: needs to synchronize gradients after each batch, medium communication volume
 
-        **内存优化：**
-        - 使用ZeRO优化器状态分片（ZeRO stage 3）
-        - 激活值重计算（activation checkpointing）
-        - 卸载优化器状态到CPU内存
+        **Memory Optimization:**
+        - Use ZeRO optimizer state sharding (ZeRO stage 3)
+        - Activation checkpointing
+        - Offload optimizer state to CPU memory
 
-        用户：我的集群有8个节点，每个节点8张A100（80GB），节点间是100Gbps的网络。按照你说的3D并行，具体应该怎么配置？另外，我担心通信开销会很大，有什么优化方法吗？
+        User: My cluster has 8 nodes, each with 8 A100 GPUs (80GB), with 100Gbps network between nodes. According to your 3D parallelism explanation, how should I configure it specifically? Also, I'm worried about high communication overhead - any optimization methods?
 
-        助手：针对你的硬件配置（8节点 × 8 GPU = 64张A100 80GB），我建议：
+        Assistant: For your hardware configuration (8 nodes x 8 GPUs = 64 A100 80GB), I recommend:
 
-        **推荐配置：**
+        **Recommended Configuration:**
         ```python
-        # DeepSpeed配置示例
+        # DeepSpeed configuration example
         {
             "train_batch_size": 512,
             "train_micro_batch_size_per_gpu": 1,
 
-            # 张量并行：8（同一节点内，利用NVLink）
+            # Tensor parallelism: 8 (within same node, utilizing NVLink)
             "tensor_parallel_size": 8,
 
-            # 流水线并行：4（跨节点）
+            # Pipeline parallelism: 4 (across nodes)
             "pipeline_parallel_size": 4,
 
-            # 数据并行：2（自动推导）
+            # Data parallelism: 2 (auto-derived)
             "data_parallel_size": 2,
 
-            # ZeRO优化
+            # ZeRO optimization
             "zero_optimization": {
                 "stage": 3,
                 "offload_optimizer": false,
@@ -327,38 +607,38 @@ prompts:
         }
         ```
 
-        **通信优化策略：**
+        **Communication Optimization Strategies:**
 
-        1. **重叠计算与通信**：
+        1. **Overlap Computation and Communication**:
         ```python
-        # 伪代码
+        # Pseudocode
         with torch.cuda.stream(compute_stream):
             forward_compute()
         with torch.cuda.stream(comm_stream):
-            all_reduce_gradients()  # 与下一层计算重叠
+            all_reduce_gradients()  # Overlaps with next layer computation
         ```
 
-        2. **梯度累积**：
-        减少通信频率，每N个micro-batch才同步一次梯度
+        2. **Gradient Accumulation**:
+        Reduce communication frequency, only synchronize gradients every N micro-batches
 
-        3. **混合精度训练**：
-        使用FP16/BF16减少通信数据量（梯度大小减半）
+        3. **Mixed Precision Training**:
+        Use FP16/BF16 to reduce communication data volume (gradient size halved)
 
-        4. **压缩通信**：
-        对梯度进行量化或稀疏化（如只传top-k梯度）
+        4. **Communication Compression**:
+        Quantize or sparsify gradients (e.g., only transmit top-k gradients)
 
-        **预期性能：**
-        - 理论吞吐量：~500-600 samples/sec（100B模型）
-        - 通信开销占比：15-25%
-        - GPU利用率：70-85%
+        **Expected Performance:**
+        - Theoretical throughput: ~500-600 samples/sec (100B model)
+        - Communication overhead ratio: 15-25%
+        - GPU utilization: 70-85%
 
-        用户：明白了。但是我还有一个问题，训练过程中如果有GPU故障怎么办？比如某张卡挂了，整个训练是不是就中断了？有没有容错机制？
+        User: Got it. But I have another question - what if there's a GPU failure during training? For example, if a card dies, does the entire training stop? Is there any fault tolerance mechanism?
 
-        助手：是的，分布式训练的容错是个重要问题。常见的容错策略有：
+        Assistant: Yes, fault tolerance in distributed training is an important issue. Common fault tolerance strategies include:
 
-        **1. Checkpoint机制（最基础）：**
+        **1. Checkpoint Mechanism (Most Basic):**
         ```python
-        # 定期保存checkpoint
+        # Periodically save checkpoints
         if global_step % checkpoint_interval == 0:
             save_checkpoint({
                 'model_state': model.state_dict(),
@@ -368,166 +648,166 @@ prompts:
             })
         ```
 
-        问题：保存100B模型的checkpoint很慢（可能几十分钟），而且故障后需要从上一个checkpoint重启，损失大量训练进度。
+        Problem: Saving a 100B model checkpoint is slow (possibly tens of minutes), and after failure you need to restart from the last checkpoint, losing significant training progress.
 
-        **2. 异步Checkpoint（优化）：**
-        使用异步IO将checkpoint保存到共享存储，不阻塞训练：
+        **2. Asynchronous Checkpoint (Optimization):**
+        Use async IO to save checkpoint to shared storage without blocking training:
         ```python
         checkpoint_thread = threading.Thread(
             target=save_checkpoint_async,
             args=(model_state,)
         )
         checkpoint_thread.start()
-        # 训练继续，不等待保存完成
+        # Training continues, doesn't wait for save to complete
         ```
 
-        **3. Elastic Training（推荐）：**
-        使用torch.distributed.elastic或Ray Train，支持动态扩缩容：
-        - 故障节点自动踢出
-        - 剩余节点重新分配工作
-        - 新节点可以动态加入
+        **3. Elastic Training (Recommended):**
+        Use torch.distributed.elastic or Ray Train to support dynamic scaling:
+        - Failed nodes automatically removed
+        - Remaining nodes redistribute work
+        - New nodes can dynamically join
 
-        **4. Redundant Computation（高级）：**
-        为关键计算保留备份：
-        - 同时在两组GPU上运行相同计算
-        - 任一组成功即可继续
-        - 成本翻倍，但可靠性大幅提升
+        **4. Redundant Computation (Advanced):**
+        Keep backups for critical computations:
+        - Run same computation on two sets of GPUs simultaneously
+        - Either set succeeding allows continuation
+        - Cost doubles, but reliability greatly improved
 
-        **实践建议：**
-        对于你的场景，建议：
-        1. 每1000步保存一次checkpoint（~10分钟）
-        2. 使用异步保存，避免阻塞训练
-        3. 集成torch.distributed.elastic，自动处理节点故障
-        4. 监控GPU健康状态（温度、ECC错误等），提前预警
+        **Practical Recommendations:**
+        For your scenario, I suggest:
+        1. Save checkpoint every 1000 steps (~10 minutes)
+        2. Use async saving to avoid blocking training
+        3. Integrate torch.distributed.elastic for automatic node failure handling
+        4. Monitor GPU health (temperature, ECC errors, etc.) for early warning
 
-        用户：非常详细！最后一个问题，假设我要训练一个类似GPT-3的175B参数模型，按照刚才的配置，需要多长时间？成本大概是多少？
+        User: Very detailed! One last question - if I want to train a 175B parameter model similar to GPT-3, based on the configuration we just discussed, how long would it take? What would be the approximate cost?
 
-        **当前问题：**
+        **Current Question:**
 
-        请基于以上对话，给出完整的训练计划，包括：
+        Based on the dialogue above, please provide a complete training plan, including:
 
-        1. **硬件需求分析**：
-           - 175B模型需要多少GPU显存？
-           - 3D并行配置应该如何调整（从100B扩展到175B）？
-           - 是否需要增加节点数量？
+        1. **Hardware Requirements Analysis**:
+           - How much GPU memory does a 175B model need?
+           - How should 3D parallelism configuration be adjusted (scaling from 100B to 175B)?
+           - Do we need to add more nodes?
 
-        2. **训练时间估算**：
-           - 假设训练数据量是300B tokens
-           - 给出每秒处理的tokens数（考虑通信开销）
-           - 总训练时间预估（天数）
+        2. **Training Time Estimation**:
+           - Assume training data is 300B tokens
+           - Provide tokens processed per second (considering communication overhead)
+           - Total training time estimate (in days)
 
-        3. **成本估算**：
-           - A100 GPU的云服务器成本（按市场价）
-           - 总训练成本（GPU租用 + 存储 + 网络）
-           - 与使用更多小型GPU的方案对比
+        3. **Cost Estimation**:
+           - A100 GPU cloud server cost (at market price)
+           - Total training cost (GPU rental + storage + network)
+           - Comparison with using more smaller GPUs
 
-        4. **风险与优化**：
-           - 可能遇到的技术风险（内存不足、通信瓶颈等）
-           - 针对性的优化方案
-           - 训练过程中的监控指标
+        4. **Risks and Optimizations**:
+           - Possible technical risks (memory shortage, communication bottleneck, etc.)
+           - Targeted optimization solutions
+           - Monitoring metrics during training
 
-        5. **完整的训练脚本**：
-           - DeepSpeed配置文件
-           - 训练启动命令
-           - Checkpoint和恢复逻辑
-           - 监控和日志设置
+        5. **Complete Training Script**:
+           - DeepSpeed configuration file
+           - Training launch command
+           - Checkpoint and recovery logic
+           - Monitoring and logging setup
 
-        请给出详细的方案和代码实现。
+        Please provide a detailed plan and code implementation.
 
       - |
-        以下是一个复杂的系统设计场景，包含多个技术决策点。请仔细阅读背景信息，然后给出完整的系统设计方案。
+        The following is a complex system design scenario with multiple technical decision points. Please read the background information carefully and provide a complete system design solution.
 
-        **项目背景：**
+        **Project Background:**
 
-        某金融科技公司需要构建一个实时风控系统，用于检测信用卡欺诈交易。系统需求如下：
+        A fintech company needs to build a real-time risk control system for detecting credit card fraud transactions. System requirements are as follows:
 
-        **业务需求：**
-        1. 实时性要求：每笔交易的风险评估必须在100ms内完成，否则用户体验受影响
-        2. 准确性要求：欺诈检测召回率 > 95%，精确率 > 90%
-        3. 规模：每秒处理10万笔交易（峰值可达20万）
-        4. 可用性：系统可用性要求99.99%（年宕机时间 < 53分钟）
+        **Business Requirements:**
+        1. Real-time requirement: Risk assessment for each transaction must be completed within 100ms, otherwise user experience is affected
+        2. Accuracy requirement: Fraud detection recall > 95%, precision > 90%
+        3. Scale: Process 100,000 transactions per second (peak up to 200,000)
+        4. Availability: System availability requirement 99.99% (annual downtime < 53 minutes)
 
-        **技术背景：**
+        **Technical Background:**
 
-        现有系统架构（存在问题）：
+        Current system architecture (has problems):
         ```
-        用户交易 -> API网关 -> 规则引擎（同步） -> 机器学习模型（同步） -> 返回结果
+        User Transaction -> API Gateway -> Rule Engine (sync) -> ML Model (sync) -> Return Result
         ```
 
-        当前系统使用的技术栈：
-        - API网关：Nginx + Flask
-        - 规则引擎：Python + Redis（存储用户历史特征）
-        - ML模型：XGBoost模型，部署在单个服务器上
-        - 数据库：MySQL（存储交易记录）
+        Current tech stack:
+        - API Gateway: Nginx + Flask
+        - Rule Engine: Python + Redis (storing user historical features)
+        - ML Model: XGBoost model deployed on a single server
+        - Database: MySQL (storing transaction records)
 
-        **当前问题：**
+        **Current Problems:**
 
-        1. **性能瓶颈**：
-           - ML模型推理耗时80ms（单核CPU），无法满足100ms的要求
-           - Redis频繁查询导致网络延迟
-           - MySQL写入成为瓶颈（每秒只能写入5000条）
+        1. **Performance Bottleneck**:
+           - ML model inference takes 80ms (single core CPU), cannot meet 100ms requirement
+           - Frequent Redis queries cause network latency
+           - MySQL writes become bottleneck (only 5000 writes per second)
 
-        2. **可扩展性问题**：
-           - 无法水平扩展（模型加载在单台服务器）
-           - 流量高峰期频繁超时
+        2. **Scalability Issues**:
+           - Cannot horizontally scale (model loaded on single server)
+           - Frequent timeouts during traffic peaks
 
-        3. **模型更新问题**：
-           - 更新模型需要重启服务，导致几分钟的停机时间
-           - 没有A/B测试机制，无法安全验证新模型
+        3. **Model Update Issues**:
+           - Updating model requires service restart, causing minutes of downtime
+           - No A/B testing mechanism, cannot safely validate new models
 
-        4. **特征工程问题**：
-           - 特征计算逻辑散落在多处代码，难以维护
-           - 实时特征（如"过去1小时的交易次数"）计算不准确
-           - 训练和推理特征不一致，导致线上线下效果差异
+        4. **Feature Engineering Issues**:
+           - Feature calculation logic scattered across multiple code locations, hard to maintain
+           - Real-time features (like "number of transactions in past hour") calculated inaccurately
+           - Training and inference features inconsistent, causing online/offline performance gap
 
-        **已有数据资源：**
-        - 历史交易数据：10亿条交易记录，存储在数据仓库（Hive）
-        - 用户画像数据：1000万用户的特征（存储在Redis）
-        - 黑名单数据：已知的欺诈商户、设备指纹等（实时更新）
+        **Available Data Resources:**
+        - Historical transaction data: 1 billion transaction records stored in data warehouse (Hive)
+        - User profile data: Features for 10 million users (stored in Redis)
+        - Blacklist data: Known fraudulent merchants, device fingerprints, etc. (real-time updates)
 
-        **技术约束：**
-        - 团队熟悉的技术栈：Python、Go、Kafka、Redis、PostgreSQL
-        - 基础设施：Kubernetes集群（100+ nodes）、公有云环境
-        - 预算：可以使用GPU服务器，但需要控制成本
+        **Technical Constraints:**
+        - Team familiar tech stack: Python, Go, Kafka, Redis, PostgreSQL
+        - Infrastructure: Kubernetes cluster (100+ nodes), public cloud environment
+        - Budget: Can use GPU servers, but need to control costs
 
-        **之前的技术讨论：**
+        **Previous Technical Discussions:**
 
-        团队内部讨论过几种方案：
+        The team has discussed several approaches:
 
-        **方案A：模型服务化 + 微服务架构**
-        - 将ML模型独立部署为微服务（使用TensorFlow Serving或TorchServe）
-        - 使用Kubernetes进行自动扩缩容
-        - 问题：特征计算仍然分散，难以保证一致性
+        **Option A: Model as Service + Microservices Architecture**
+        - Deploy ML model as independent microservice (using TensorFlow Serving or TorchServe)
+        - Use Kubernetes for auto-scaling
+        - Problem: Feature calculation still scattered, hard to guarantee consistency
 
-        **方案B：流式处理架构**
-        - 使用Kafka + Flink进行实时特征计算
-        - 将计算好的特征写入Redis，模型只需读取
-        - 问题：增加系统复杂度，需要维护流处理作业
+        **Option B: Streaming Architecture**
+        - Use Kafka + Flink for real-time feature calculation
+        - Write calculated features to Redis, model only needs to read
+        - Problem: Increases system complexity, need to maintain stream processing jobs
 
-        **方案C：特征平台 + 在线推理**
-        - 构建统一的特征平台（如Feast）
-        - 保证训练/推理特征一致性
-        - 问题：引入新的依赖，学习成本高
+        **Option C: Feature Platform + Online Inference**
+        - Build unified feature platform (like Feast)
+        - Ensure training/inference feature consistency
+        - Problem: Introduces new dependencies, learning curve
 
-        **方案D：边缘计算**
-        - 将模型推理下沉到边缘节点
-        - 减少网络延迟
-        - 问题：模型更新和监控困难
+        **Option D: Edge Computing**
+        - Push model inference to edge nodes
+        - Reduce network latency
+        - Problem: Model updates and monitoring difficult
 
-        **具体技术细节：**
+        **Specific Technical Details:**
 
-        当前ML模型特征（共150维）：
-        1. 用户特征（30维）：年龄、性别、信用评分、历史交易统计等
-        2. 交易特征（40维）：金额、商户类别、交易时间、地理位置等
-        3. 序列特征（80维）：过去24小时的交易序列embedding
+        Current ML model features (150 dimensions total):
+        1. User features (30 dimensions): age, gender, credit score, historical transaction statistics, etc.
+        2. Transaction features (40 dimensions): amount, merchant category, transaction time, geographic location, etc.
+        3. Sequence features (80 dimensions): embedding of transactions in past 24 hours
 
-        特征计算代码示例：
+        Feature calculation code example:
         ```python
         def extract_features(transaction, user_id):
-            # 用户特征（从Redis读取）
+            # User features (read from Redis)
             user_profile = redis_client.get(f"user:{user_id}")
 
-            # 实时统计特征（需要查询历史）
+            # Real-time statistical features (need to query history)
             recent_txns = mysql_client.query(
                 f"SELECT * FROM transactions
                   WHERE user_id={user_id}
@@ -535,7 +815,7 @@ prompts:
             )
             txn_count_1h = len(recent_txns)
 
-            # 序列特征（需要模型embedding）
+            # Sequence features (need model embedding)
             txn_sequence = get_recent_sequence(user_id, limit=50)
             sequence_emb = sequence_encoder.encode(txn_sequence)
 
@@ -544,245 +824,1897 @@ prompts:
                 'txn_amount': transaction['amount'],
                 'txn_count_1h': txn_count_1h,
                 'sequence_emb': sequence_emb,
-                # ... 其他150维特征
+                # ... other 150 dimension features
             }
         ```
 
-        问题：这个特征提取流程中，MySQL查询耗时50ms，序列编码耗时30ms，严重影响性能。
+        Problem: In this feature extraction flow, MySQL query takes 50ms, sequence encoding takes 30ms, seriously affecting performance.
 
-        **你的任务：**
+        **Your Task:**
 
-        请设计一个完整的系统架构，解决上述所有问题。需要包含：
+        Please design a complete system architecture to solve all the above problems. Include:
 
-        1. **系统架构设计**：
-           - 画出完整的系统架构图（用文字描述各个组件及其连接关系）
-           - 说明数据流向和处理流程
-           - 标注每个环节的预期延迟
+        1. **System Architecture Design**:
+           - Draw complete system architecture diagram (describe each component and their connections in text)
+           - Explain data flow and processing flow
+           - Mark expected latency for each stage
 
-        2. **技术选型和理由**：
-           - 选择哪种方案（A/B/C/D或混合）？为什么？
-           - 每个组件的技术选型（消息队列、数据库、缓存、模型服务等）
-           - 如何保证100ms的延迟要求？
+        2. **Technology Selection and Rationale**:
+           - Which option to choose (A/B/C/D or hybrid)? Why?
+           - Technology selection for each component (message queue, database, cache, model service, etc.)
+           - How to ensure 100ms latency requirement?
 
-        3. **特征工程解决方案**：
-           - 如何优化特征计算流程？
-           - 如何保证训练/推理特征一致性？
-           - 如何处理实时特征（如过去1小时的统计）？
+        3. **Feature Engineering Solution**:
+           - How to optimize feature calculation flow?
+           - How to ensure training/inference feature consistency?
+           - How to handle real-time features (like statistics from past hour)?
 
-        4. **模型服务设计**：
-           - 如何部署ML模型（单模型 vs 模型ensemble）？
-           - 如何实现模型的灰度发布和A/B测试？
-           - 如何优化模型推理性能（量化、蒸馏、GPU加速等）？
+        4. **Model Service Design**:
+           - How to deploy ML model (single model vs model ensemble)?
+           - How to implement model canary release and A/B testing?
+           - How to optimize model inference performance (quantization, distillation, GPU acceleration, etc.)?
 
-        5. **高可用性设计**：
-           - 如何保证99.99%的可用性？
-           - 故障检测和自动恢复机制
-           - 降级策略（当ML模型不可用时如何处理）
+        5. **High Availability Design**:
+           - How to ensure 99.99% availability?
+           - Failure detection and automatic recovery mechanism
+           - Degradation strategy (what to do when ML model is unavailable)
 
-        6. **监控和运维**：
-           - 需要监控哪些指标（性能、准确性、业务指标）？
-           - 如何快速定位问题？
-           - 如何进行容量规划？
+        6. **Monitoring and Operations**:
+           - What metrics to monitor (performance, accuracy, business metrics)?
+           - How to quickly locate problems?
+           - How to do capacity planning?
 
-        7. **成本优化**：
-           - 预估总体成本（服务器、存储、网络）
-           - 如何在性能和成本间平衡？
+        7. **Cost Optimization**:
+           - Estimate total cost (servers, storage, network)
+           - How to balance performance and cost?
 
-        8. **核心代码实现**：
-           - 特征提取服务的伪代码
-           - 模型推理服务的代码框架
-           - Kafka消费者和Flink作业（如果使用流处理）
+        8. **Core Code Implementation**:
+           - Pseudocode for feature extraction service
+           - Code framework for model inference service
+           - Kafka consumer and Flink job (if using stream processing)
 
-        请给出详尽的设计文档，包括架构图、技术选型理由、代码实现和性能评估。
+        Please provide detailed design documentation including architecture diagram, technology selection rationale, code implementation and performance evaluation.
 
       - |
-        你是一个系统架构专家。以下是一个大型电商平台的技术演进历史和当前面临的挑战，请基于完整的上下文信息，给出系统重构方案。
+        You are a system architecture expert. The following is the technology evolution history and current challenges of a large e-commerce platform. Please provide a system refactoring plan based on the complete context.
 
-        **公司背景：**
+        **Company Background:**
 
-        某电商平台成立于2015年，目前已成长为日订单量100万的中型平台。技术团队从最初的5人成长到现在的200人。
+        An e-commerce platform founded in 2015 has grown to a medium-sized platform with 1 million daily orders. The technical team has grown from 5 people initially to 200 people now.
 
-        **技术演进历史：**
+        **Technology Evolution History:**
 
-        **第一阶段（2015-2017）：单体应用**
-        - 技术栈：PHP + MySQL + Redis
-        - 架构：经典的LAMP架构，所有功能在一个代码仓库
-        - 规模：日订单量 < 1000，单台服务器足够
-        - 问题：随着业务增长，代码耦合严重，部署困难
+        **Phase 1 (2015-2017): Monolithic Application**
+        - Tech stack: PHP + MySQL + Redis
+        - Architecture: Classic LAMP architecture, all features in one code repository
+        - Scale: Daily orders < 1000, single server sufficient
+        - Problem: With business growth, code coupling severe, deployment difficult
 
-        **第二阶段（2017-2019）：服务化改造**
-        - 拆分为10个微服务：用户、商品、订单、支付、物流等
-        - 引入Spring Cloud（公司决定从PHP迁移到Java）
-        - 服务间通信：HTTP REST API
-        - 问题：
-          * 分布式事务难处理（订单 + 库存 + 支付的一致性）
-          * 服务间调用链路长，性能下降
-          * 团队对Java生态不熟悉，踩了很多坑
+        **Phase 2 (2017-2019): Service-Oriented Transformation**
+        - Split into 10 microservices: User, Product, Order, Payment, Logistics, etc.
+        - Introduced Spring Cloud (company decided to migrate from PHP to Java)
+        - Inter-service communication: HTTP REST API
+        - Problems:
+          * Distributed transactions hard to handle (consistency of Order + Inventory + Payment)
+          * Long service call chains, performance degradation
+          * Team unfamiliar with Java ecosystem, stepped on many pitfalls
 
-        **第三阶段（2019-2021）：中间件引入**
-        - 引入消息队列（RabbitMQ）处理异步任务
-        - 引入分布式事务框架（Seata）
-        - 引入服务网格（Istio）
-        - 数据库拆分：按业务垂直拆分，订单库、商品库、用户库独立
-        - 问题：
-          * 中间件太多，运维成本高
-          * Istio性能开销大（增加20ms延迟）
-          * Seata在高并发下不稳定
+        **Phase 3 (2019-2021): Middleware Introduction**
+        - Introduced message queue (RabbitMQ) for async tasks
+        - Introduced distributed transaction framework (Seata)
+        - Introduced service mesh (Istio)
+        - Database split: Vertical split by business, Order DB, Product DB, User DB independent
+        - Problems:
+          * Too many middleware, high ops cost
+          * Istio performance overhead large (adds 20ms latency)
+          * Seata unstable under high concurrency
 
-        **第四阶段（2021-现在）：云原生转型**
-        - 迁移到Kubernetes
-        - 引入服务网格（从Istio换成Linkerd）
-        - 数据库开始分库分表（订单表已达10亿条）
-        - 引入Elasticsearch做商品搜索
-        - 问题：
-          * 分库分表后，跨库查询困难（如订单列表页需要关联商品、用户信息）
-          * Elasticsearch同步延迟（MySQL -> ES需要5-10秒）
-          * 高峰期（大促）仍然会出现超时和限流
+        **Phase 4 (2021-Present): Cloud Native Transformation**
+        - Migrated to Kubernetes
+        - Introduced service mesh (switched from Istio to Linkerd)
+        - Database started sharding (Order table reached 1 billion records)
+        - Introduced Elasticsearch for product search
+        - Problems:
+          * After sharding, cross-database queries difficult (e.g., order list page needs to join product, user info)
+          * Elasticsearch sync delay (MySQL -> ES takes 5-10 seconds)
+          * Still timeouts and rate limiting during peak (promotions)
 
-        **当前系统架构：**
+        **Current System Architecture:**
 
         ```
-        前端（React）
-          ↓
-        API网关（Kong）
-          ↓
-        微服务层（20+个服务）：
-          - 用户服务（Java Spring Boot）
-          - 商品服务（Java Spring Boot）
-          - 订单服务（Go + gRPC）- 核心服务
-          - 支付服务（Java）
-          - 库存服务（Go）
-          - 推荐服务（Python FastAPI + TensorFlow）
-          - 搜索服务（封装Elasticsearch）
-          ↓
-        数据层：
-          - MySQL主从集群（分库分表，16个物理库）
-          - Redis集群（Cluster模式，6节点）
-          - Elasticsearch集群（3节点）
-          - Kafka（3节点）
+        Frontend (React)
+          |
+        API Gateway (Kong)
+          |
+        Microservice Layer (20+ services):
+          - User Service (Java Spring Boot)
+          - Product Service (Java Spring Boot)
+          - Order Service (Go + gRPC) - Core service
+          - Payment Service (Java)
+          - Inventory Service (Go)
+          - Recommendation Service (Python FastAPI + TensorFlow)
+          - Search Service (wrapping Elasticsearch)
+          |
+        Data Layer:
+          - MySQL Master-Slave Cluster (sharded, 16 physical databases)
+          - Redis Cluster (Cluster mode, 6 nodes)
+          - Elasticsearch Cluster (3 nodes)
+          - Kafka (3 nodes)
         ```
 
-        **当前性能指标：**
-        - 平均响应时间：200ms（P99: 800ms）
-        - 峰值QPS：50000（大促时）
-        - 数据库连接池经常打满
-        - Redis内存使用率：85%（接近上限）
+        **Current Performance Metrics:**
+        - Average response time: 200ms (P99: 800ms)
+        - Peak QPS: 50000 (during promotions)
+        - Database connection pool often exhausted
+        - Redis memory usage: 85% (near limit)
 
-        **近期发生的严重故障：**
+        **Recent Severe Incidents:**
 
-        **故障1（2023.6）：订单服务雪崩**
-        - 原因：订单服务调用库存服务超时，导致线程池耗尽
-        - 影响：所有下单请求失败，持续30分钟
-        - 损失：约10万订单丢失，直接经济损失500万
-        - 临时措施：重启订单服务，增加超时时间
-        - 根本原因未解决：服务间强依赖
+        **Incident 1 (2023.6): Order Service Cascade Failure**
+        - Cause: Order service call to Inventory service timeout, causing thread pool exhaustion
+        - Impact: All order requests failed for 30 minutes
+        - Loss: About 100,000 orders lost, direct economic loss $700,000
+        - Temporary fix: Restart order service, increase timeout
+        - Root cause unresolved: Strong service dependencies
 
-        **故障2（2023.8）：数据库主库宕机**
-        - 原因：慢SQL导致主库CPU 100%，主从切换失败
-        - 影响：网站不可用2小时
-        - 损失：品牌形象受损，用户流失
-        - 临时措施：手动切换到从库
-        - 遗留问题：主从延迟严重（平均5秒），影响读一致性
+        **Incident 2 (2023.8): Database Master Crash**
+        - Cause: Slow SQL caused master CPU 100%, master-slave failover failed
+        - Impact: Website unavailable for 2 hours
+        - Loss: Brand image damaged, user churn
+        - Temporary fix: Manual switch to slave
+        - Remaining issue: Severe master-slave lag (average 5 seconds), affecting read consistency
 
-        **故障3（2023.11）：Redis集群脑裂**
-        - 原因：网络抖动导致cluster分区
-        - 影响：部分用户购物车数据丢失
-        - 损失：用户投诉激增
-        - 临时措施：Redis集群重启
-        - 遗留问题：没有Redis数据持久化方案
+        **Incident 3 (2023.11): Redis Cluster Split-Brain**
+        - Cause: Network jitter caused cluster partition
+        - Impact: Some users' shopping cart data lost
+        - Loss: User complaints surged
+        - Temporary fix: Redis cluster restart
+        - Remaining issue: No Redis data persistence solution
 
-        **业务方新需求（压力山大）：**
+        **New Business Requirements (Pressure Mounting):**
 
-        1. **个性化推荐**：
-           - 要求首页商品推荐根据用户实时行为调整
-           - 延迟要求：< 100ms
-           - 需要处理用户点击流数据（每秒10万事件）
+        1. **Personalized Recommendations**:
+           - Require homepage product recommendations to adjust based on user real-time behavior
+           - Latency requirement: < 100ms
+           - Need to process user clickstream data (100,000 events per second)
 
-        2. **实时库存**：
-           - 当前库存数据有延迟（最多5秒），导致超卖
-           - 要求实时扣减库存，严格防止超卖
+        2. **Real-time Inventory**:
+           - Current inventory data has delay (up to 5 seconds), causing overselling
+           - Require real-time inventory deduction, strictly prevent overselling
 
-        3. **大促支持**：
-           - 双11预计流量是平时的10倍
-           - 要求系统能够自动扩容，成本可控
+        3. **Promotion Support**:
+           - Singles Day expected traffic is 10x normal
+           - Require system to auto-scale, cost controllable
 
-        4. **数据分析**：
-           - 运营团队要求实时大屏（GMV、订单量等指标）
-           - 数据团队要求能够查询任意时间段的订单明细
+        4. **Data Analytics**:
+           - Operations team requires real-time dashboard (GMV, order count, etc.)
+           - Data team requires ability to query order details for any time period
 
-        **技术团队的困境：**
+        **Technical Team Struggles:**
 
-        1. **技术债务**：代码中充斥着if-else，新功能开发困难
-        2. **人员流动**：核心开发离职，代码没人敢动
-        3. **技术栈混乱**：Java、Go、Python混用，缺乏统一标准
-        4. **测试不足**：没有自动化测试，全靠人工测试，bug频发
-        5. **监控缺失**：故障发生后才知道，缺乏主动预警
+        1. **Technical Debt**: Code full of if-else, new feature development difficult
+        2. **Personnel Turnover**: Core developers left, no one dares to touch code
+        3. **Tech Stack Chaos**: Java, Go, Python mixed use, lack of unified standards
+        4. **Insufficient Testing**: No automated tests, all manual testing, bugs frequent
+        5. **Monitoring Gaps**: Only know after incidents happen, lack proactive alerting
 
-        **管理层的期望：**
-        - 今年必须完成系统重构，支撑未来3年业务增长
-        - 预算充足，可以采购新的基础设施
-        - 但要求重构过程中不能影响业务（零停机）
-        - 6个月内完成核心模块重构
+        **Management Expectations:**
+        - Must complete system refactoring this year to support next 3 years of business growth
+        - Budget sufficient, can purchase new infrastructure
+        - But require refactoring process cannot affect business (zero downtime)
+        - Complete core module refactoring within 6 months
 
-        **你的任务：**
+        **Your Task:**
 
-        作为新上任的技术架构师，请制定完整的系统重构方案：
+        As the newly appointed technical architect, please develop a complete system refactoring plan:
 
-        1. **问题诊断**：
-           - 当前系统的核心问题是什么？（技术视角）
-           - 哪些是需要优先解决的（按影响排序）？
+        1. **Problem Diagnosis**:
+           - What are the core problems of the current system? (Technical perspective)
+           - Which need to be solved first (ranked by impact)?
 
-        2. **重构策略**：
-           - 选择大爆炸式重写还是渐进式重构？为什么？
-           - 重构的优先级和阶段划分（6个月的详细计划）
-           - 如何保证重构期间业务不受影响？
+        2. **Refactoring Strategy**:
+           - Choose big bang rewrite or gradual refactoring? Why?
+           - Refactoring priorities and phase breakdown (detailed 6-month plan)
+           - How to ensure business is not affected during refactoring?
 
-        3. **目标架构设计**：
-           - 画出重构后的目标架构（用文字详细描述）
-           - 技术选型（保留哪些，替换哪些，新引入哪些）
-           - 如何解决服务间强依赖问题？
-           - 如何解决数据一致性问题？
+        3. **Target Architecture Design**:
+           - Draw the target architecture after refactoring (detailed text description)
+           - Technology selection (what to keep, what to replace, what new to introduce)
+           - How to solve strong service dependencies?
+           - How to solve data consistency issues?
 
-        4. **核心模块重构方案**：
+        4. **Core Module Refactoring Plan**:
 
-           **订单服务重构：**
-           - 如何处理分布式事务（订单+库存+支付）？
-           - 如何优化数据库查询（已分库分表）？
-           - 如何支持高并发下单（大促10倍流量）？
+           **Order Service Refactoring:**
+           - How to handle distributed transactions (Order + Inventory + Payment)?
+           - How to optimize database queries (already sharded)?
+           - How to support high-concurrency ordering (10x promotion traffic)?
 
-           **库存服务重构：**
-           - 如何实现实时库存扣减，防止超卖？
-           - 如何处理库存回滚（订单取消）？
-           - 如何支持预占库存（用户加入购物车15分钟内保留）？
+           **Inventory Service Refactoring:**
+           - How to implement real-time inventory deduction, prevent overselling?
+           - How to handle inventory rollback (order cancellation)?
+           - How to support inventory reservation (hold for 15 minutes after adding to cart)?
 
-           **搜索服务重构：**
-           - 如何减少MySQL到ES的同步延迟（从5秒降到100ms内）？
-           - 如何支持复杂查询（价格区间、多条件筛选、排序）？
-           - 如何优化搜索性能（P99 < 50ms）？
+           **Search Service Refactoring:**
+           - How to reduce MySQL to ES sync delay (from 5 seconds to under 100ms)?
+           - How to support complex queries (price range, multi-condition filtering, sorting)?
+           - How to optimize search performance (P99 < 50ms)?
 
-        5. **数据架构优化**：
-           - 分库分表策略（当前16个库是否合理）？
-           - 跨库查询解决方案（CQRS？数据冗余？）
-           - 数据备份和容灾方案
+        5. **Data Architecture Optimization**:
+           - Sharding strategy (is current 16 databases reasonable)?
+           - Cross-database query solution (CQRS? Data redundancy?)
+           - Data backup and disaster recovery plan
 
-        6. **可观测性建设**：
-           - 监控体系（指标、日志、链路追踪）
-           - 告警策略（如何提前预警）
-           - 故障演练（混沌工程）
+        6. **Observability Building**:
+           - Monitoring system (metrics, logs, tracing)
+           - Alerting strategy (how to alert proactively)
+           - Failure drills (chaos engineering)
 
-        7. **团队和流程**：
-           - 如何推动技术栈统一？
-           - 如何建立代码规范和review机制？
-           - 如何补齐自动化测试？
+        7. **Team and Process**:
+           - How to drive tech stack unification?
+           - How to establish code standards and review mechanism?
+           - How to complete automated testing?
 
-        8. **风险控制**：
-           - 重构过程中可能遇到的风险
-           - 应对措施和回滚方案
-           - 如何向管理层汇报进度？
+        8. **Risk Control**:
+           - Risks that may be encountered during refactoring
+           - Countermeasures and rollback plans
+           - How to report progress to management?
 
-        请给出一份完整的技术方案文档，包括架构设计、实施计划、风险评估和预期收益。
+        Please provide a complete technical proposal document including architecture design, implementation plan, risk assessment and expected benefits.
 
-# 生成配置（默认值，可被prompt type覆盖）
+      - |
+        The following is a comprehensive code review request with multiple files and complex dependencies. Please analyze the code thoroughly and provide detailed feedback.
+
+        **Project Context:**
+        A team is building a cryptocurrency trading bot. The code has been developed over 6 months by 3 developers with varying experience levels. The system is about to go live with real money.
+
+        **File 1: trading_engine.py**
+        ```python
+        import asyncio
+        import aiohttp
+        from decimal import Decimal
+        from typing import Dict, List, Optional
+        import logging
+
+        logger = logging.getLogger(__name__)
+
+        class TradingEngine:
+            def __init__(self, api_key: str, api_secret: str, exchange: str):
+                self.api_key = api_key
+                self.api_secret = api_secret
+                self.exchange = exchange
+                self.positions = {}
+                self.pending_orders = []
+                self.balance = Decimal("0")
+
+            async def connect(self):
+                self.session = aiohttp.ClientSession()
+                await self.fetch_balance()
+                logger.info(f"Connected to {self.exchange}")
+
+            async def fetch_balance(self):
+                url = f"https://api.{self.exchange}.com/v1/balance"
+                headers = {"X-API-KEY": self.api_key}
+                async with self.session.get(url, headers=headers) as resp:
+                    data = await resp.json()
+                    self.balance = Decimal(str(data["available"]))
+
+            async def place_order(self, symbol: str, side: str, quantity: float, price: float):
+                order = {
+                    "symbol": symbol,
+                    "side": side,
+                    "quantity": quantity,
+                    "price": price,
+                    "timestamp": asyncio.get_event_loop().time()
+                }
+
+                url = f"https://api.{self.exchange}.com/v1/order"
+                async with self.session.post(url, json=order) as resp:
+                    result = await resp.json()
+                    if result["status"] == "filled":
+                        self.positions[symbol] = self.positions.get(symbol, 0) + quantity
+                    self.pending_orders.append(result)
+                    return result
+
+            async def execute_strategy(self, strategy):
+                while True:
+                    signals = await strategy.generate_signals()
+                    for signal in signals:
+                        await self.place_order(
+                            signal["symbol"],
+                            signal["side"],
+                            signal["quantity"],
+                            signal["price"]
+                        )
+                    await asyncio.sleep(1)
+
+            def calculate_pnl(self) -> Decimal:
+                total = Decimal("0")
+                for symbol, qty in self.positions.items():
+                    current_price = self.get_current_price(symbol)
+                    total += Decimal(str(qty)) * Decimal(str(current_price))
+                return total - self.balance
+
+            def get_current_price(self, symbol: str) -> float:
+                # Synchronous call in async context - problematic
+                import requests
+                resp = requests.get(f"https://api.{self.exchange}.com/v1/price/{symbol}")
+                return resp.json()["price"]
+        ```
+
+        **File 2: risk_manager.py**
+        ```python
+        from decimal import Decimal
+        from typing import Dict
+        import json
+
+        class RiskManager:
+            MAX_POSITION_SIZE = 10000  # USD
+            MAX_DAILY_LOSS = 1000  # USD
+            MAX_OPEN_POSITIONS = 5
+
+            def __init__(self, config_file: str):
+                with open(config_file) as f:
+                    self.config = json.load(f)
+                self.daily_pnl = 0
+                self.trade_count = 0
+
+            def check_order(self, order: Dict) -> bool:
+                # Check position size
+                order_value = order["quantity"] * order["price"]
+                if order_value > self.MAX_POSITION_SIZE:
+                    return False
+
+                # Check daily loss limit
+                if self.daily_pnl < -self.MAX_DAILY_LOSS:
+                    return False
+
+                # Check number of open positions
+                if len(self.open_positions) >= self.MAX_OPEN_POSITIONS:
+                    return False
+
+                return True
+
+            def update_pnl(self, pnl: float):
+                self.daily_pnl += pnl
+
+            def reset_daily_limits(self):
+                self.daily_pnl = 0
+                self.trade_count = 0
+        ```
+
+        **File 3: strategy.py**
+        ```python
+        import numpy as np
+        import pandas as pd
+        from typing import List, Dict
+
+        class MomentumStrategy:
+            def __init__(self, lookback_period: int = 20, threshold: float = 0.02):
+                self.lookback_period = lookback_period
+                self.threshold = threshold
+                self.price_history = {}
+
+            async def generate_signals(self) -> List[Dict]:
+                signals = []
+
+                for symbol in self.watchlist:
+                    prices = self.price_history.get(symbol, [])
+
+                    if len(prices) < self.lookback_period:
+                        continue
+
+                    returns = np.diff(prices[-self.lookback_period:]) / prices[-self.lookback_period:-1]
+                    momentum = np.mean(returns)
+
+                    if momentum > self.threshold:
+                        signals.append({
+                            "symbol": symbol,
+                            "side": "buy",
+                            "quantity": self.calculate_position_size(symbol),
+                            "price": prices[-1]
+                        })
+                    elif momentum < -self.threshold:
+                        signals.append({
+                            "symbol": symbol,
+                            "side": "sell",
+                            "quantity": self.calculate_position_size(symbol),
+                            "price": prices[-1]
+                        })
+
+                return signals
+
+            def calculate_position_size(self, symbol: str) -> float:
+                # Fixed position size - not ideal
+                return 100
+
+            def update_prices(self, symbol: str, price: float):
+                if symbol not in self.price_history:
+                    self.price_history[symbol] = []
+                self.price_history[symbol].append(price)
+
+                # Keep only recent prices
+                if len(self.price_history[symbol]) > 1000:
+                    self.price_history[symbol] = self.price_history[symbol][-500:]
+        ```
+
+        **File 4: database.py**
+        ```python
+        import sqlite3
+        from typing import List, Dict, Optional
+        from datetime import datetime
+
+        class Database:
+            def __init__(self, db_path: str = "trading.db"):
+                self.conn = sqlite3.connect(db_path)
+                self.create_tables()
+
+            def create_tables(self):
+                cursor = self.conn.cursor()
+                cursor.execute('''
+                    CREATE TABLE IF NOT EXISTS orders (
+                        id INTEGER PRIMARY KEY,
+                        symbol TEXT,
+                        side TEXT,
+                        quantity REAL,
+                        price REAL,
+                        status TEXT,
+                        created_at TIMESTAMP
+                    )
+                ''')
+                cursor.execute('''
+                    CREATE TABLE IF NOT EXISTS positions (
+                        symbol TEXT PRIMARY KEY,
+                        quantity REAL,
+                        avg_price REAL
+                    )
+                ''')
+                self.conn.commit()
+
+            def save_order(self, order: Dict):
+                cursor = self.conn.cursor()
+                cursor.execute(
+                    f"INSERT INTO orders (symbol, side, quantity, price, status, created_at) "
+                    f"VALUES ('{order['symbol']}', '{order['side']}', {order['quantity']}, "
+                    f"{order['price']}, '{order['status']}', '{datetime.now()}')"
+                )
+                self.conn.commit()
+
+            def get_orders(self, symbol: Optional[str] = None) -> List[Dict]:
+                cursor = self.conn.cursor()
+                if symbol:
+                    cursor.execute(f"SELECT * FROM orders WHERE symbol = '{symbol}'")
+                else:
+                    cursor.execute("SELECT * FROM orders")
+                return cursor.fetchall()
+
+            def update_position(self, symbol: str, quantity: float, avg_price: float):
+                cursor = self.conn.cursor()
+                cursor.execute(
+                    f"INSERT OR REPLACE INTO positions VALUES ('{symbol}', {quantity}, {avg_price})"
+                )
+                self.conn.commit()
+        ```
+
+        **Your Task:**
+
+        Please provide a comprehensive code review covering:
+
+        1. **Security Vulnerabilities**:
+           - Identify all security issues (SQL injection, credential handling, etc.)
+           - Provide severity rating (Critical/High/Medium/Low)
+           - Suggest fixes for each issue
+
+        2. **Concurrency Issues**:
+           - Race conditions
+           - Deadlock potential
+           - Async/sync mixing problems
+
+        3. **Error Handling**:
+           - Missing error handling
+           - Inadequate exception handling
+           - Recovery mechanisms needed
+
+        4. **Business Logic Issues**:
+           - Trading logic flaws that could cause financial loss
+           - Risk management gaps
+           - Order execution problems
+
+        5. **Code Quality**:
+           - Design pattern violations
+           - Code organization issues
+           - Testing concerns
+
+        6. **Performance Issues**:
+           - Bottlenecks
+           - Memory leaks
+           - Inefficient algorithms
+
+        7. **Recommendations**:
+           - Priority-ranked list of fixes
+           - Suggested architecture improvements
+           - Testing strategy before going live
+
+        This is a critical review - the code will handle real money. Be thorough and specific.
+
+      - |
+        You are consulting for a healthcare startup that needs to build a HIPAA-compliant patient data management system. Review the following requirements and existing code, then provide a complete technical specification.
+
+        **Business Context:**
+        - Small healthcare clinic with 50 doctors and 10,000 patients
+        - Current system: Paper records and Excel spreadsheets
+        - Goal: Digital transformation with electronic health records (EHR)
+        - Budget: $500K for initial development, $100K/year maintenance
+        - Timeline: 12 months to production
+
+        **Regulatory Requirements (HIPAA):**
+        1. Protected Health Information (PHI) must be encrypted at rest and in transit
+        2. Access controls with role-based permissions
+        3. Audit logging of all PHI access
+        4. Automatic session timeout (15 minutes)
+        5. Secure messaging between providers
+        6. Patient consent management
+        7. Data retention policies (7 years minimum)
+        8. Breach notification procedures
+
+        **Functional Requirements:**
+
+        **Patient Management:**
+        - Patient registration and demographics
+        - Insurance information
+        - Emergency contacts
+        - Medical history
+        - Allergies and medications
+
+        **Clinical Documentation:**
+        - Progress notes (SOAP format)
+        - Lab results integration
+        - Imaging results
+        - Prescription management (e-prescribing)
+        - Referral management
+
+        **Scheduling:**
+        - Appointment booking
+        - Provider availability
+        - Automated reminders (SMS, email)
+        - Waitlist management
+
+        **Billing:**
+        - Insurance claims submission
+        - Patient billing
+        - Payment processing
+        - Reporting
+
+        **Current Technical Prototype (needs security review):**
+
+        ```python
+        # models.py
+        from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Text
+        from sqlalchemy.ext.declarative import declarative_base
+
+        Base = declarative_base()
+
+        class Patient(Base):
+            __tablename__ = 'patients'
+
+            id = Column(Integer, primary_key=True)
+            first_name = Column(String(100))
+            last_name = Column(String(100))
+            ssn = Column(String(11))  # Social Security Number
+            dob = Column(DateTime)
+            email = Column(String(255))
+            phone = Column(String(20))
+            address = Column(Text)
+            insurance_id = Column(String(50))
+
+        class MedicalRecord(Base):
+            __tablename__ = 'medical_records'
+
+            id = Column(Integer, primary_key=True)
+            patient_id = Column(Integer, ForeignKey('patients.id'))
+            provider_id = Column(Integer, ForeignKey('providers.id'))
+            visit_date = Column(DateTime)
+            chief_complaint = Column(Text)
+            diagnosis = Column(Text)
+            treatment_plan = Column(Text)
+            notes = Column(Text)
+            created_at = Column(DateTime)
+
+        class Provider(Base):
+            __tablename__ = 'providers'
+
+            id = Column(Integer, primary_key=True)
+            name = Column(String(100))
+            specialty = Column(String(100))
+            license_number = Column(String(50))
+            email = Column(String(255))
+            password = Column(String(255))  # Plaintext password storage
+        ```
+
+        ```python
+        # api.py
+        from flask import Flask, request, jsonify
+        from models import Patient, MedicalRecord, Provider
+        from sqlalchemy.orm import Session
+
+        app = Flask(__name__)
+
+        @app.route('/api/patients/<int:patient_id>')
+        def get_patient(patient_id):
+            session = Session()
+            patient = session.query(Patient).filter_by(id=patient_id).first()
+            return jsonify({
+                'id': patient.id,
+                'name': f"{patient.first_name} {patient.last_name}",
+                'ssn': patient.ssn,
+                'dob': str(patient.dob),
+                'email': patient.email
+            })
+
+        @app.route('/api/patients/search')
+        def search_patients():
+            query = request.args.get('q')
+            session = Session()
+            # SQL injection vulnerability
+            patients = session.execute(
+                f"SELECT * FROM patients WHERE first_name LIKE '%{query}%'"
+            )
+            return jsonify([dict(row) for row in patients])
+
+        @app.route('/api/records/<int:patient_id>')
+        def get_records(patient_id):
+            session = Session()
+            records = session.query(MedicalRecord).filter_by(patient_id=patient_id).all()
+            return jsonify([{
+                'visit_date': str(r.visit_date),
+                'diagnosis': r.diagnosis,
+                'treatment': r.treatment_plan
+            } for r in records])
+
+        @app.route('/api/login', methods=['POST'])
+        def login():
+            data = request.json
+            session = Session()
+            provider = session.query(Provider).filter_by(
+                email=data['email'],
+                password=data['password']  # Plaintext comparison
+            ).first()
+            if provider:
+                return jsonify({'token': 'some-token', 'provider_id': provider.id})
+            return jsonify({'error': 'Invalid credentials'}), 401
+        ```
+
+        **Infrastructure Context:**
+        - Cloud provider: AWS (preferred) or Azure
+        - Database: PostgreSQL
+        - Team skills: Python, React, some DevOps experience
+        - No dedicated security team
+
+        **Your Task:**
+
+        Provide a complete technical specification including:
+
+        1. **Security Architecture**:
+           - Data encryption strategy (at rest, in transit, field-level)
+           - Authentication and authorization design
+           - Audit logging architecture
+           - Network security design
+           - Key management approach
+
+        2. **Data Model Redesign**:
+           - Corrected schema with proper data types
+           - PHI field identification and protection
+           - Referential integrity
+           - Soft delete strategy
+
+        3. **API Security**:
+           - Authentication flow (OAuth 2.0, JWT, etc.)
+           - Authorization middleware
+           - Input validation
+           - Rate limiting
+           - CORS policy
+
+        4. **Infrastructure Design**:
+           - AWS architecture diagram (VPC, subnets, security groups)
+           - Database configuration (RDS, encryption, backups)
+           - Application deployment (ECS/EKS/Lambda)
+           - CDN and WAF configuration
+
+        5. **Compliance Checklist**:
+           - HIPAA technical safeguards mapping
+           - BAA requirements
+           - Risk assessment template
+
+        6. **Implementation Roadmap**:
+           - Phase breakdown
+           - Resource requirements
+           - Risk mitigation strategies
+
+        7. **Code Samples**:
+           - Secure authentication implementation
+           - Encrypted field handling
+           - Audit logging middleware
+           - RBAC implementation
+
+      - |
+        The following is a detailed performance troubleshooting session for a slow microservices application. Analyze the provided metrics, logs, and configuration to identify the root cause and provide solutions.
+
+        **System Overview:**
+        - E-commerce platform with 15 microservices
+        - Traffic: 10,000 requests/second at peak
+        - SLA: P99 latency < 500ms
+        - Current state: P99 latency is 2-3 seconds, customers complaining
+
+        **Architecture:**
+        ```
+        CDN -> Load Balancer -> API Gateway -> Services
+                                    |
+                    +---------------+---------------+
+                    |               |               |
+              Product Service  Order Service  User Service
+                    |               |               |
+                PostgreSQL      PostgreSQL      PostgreSQL
+                    |               |               |
+                  Redis           Redis          Redis
+        ```
+
+        **Service Metrics (from Prometheus):**
+
+        **API Gateway:**
+        ```
+        # Request rate
+        http_requests_total{service="gateway"} 10000/s
+
+        # Latency histogram
+        http_request_duration_seconds{service="gateway", quantile="0.5"} 0.15
+        http_request_duration_seconds{service="gateway", quantile="0.95"} 0.8
+        http_request_duration_seconds{service="gateway", quantile="0.99"} 2.5
+
+        # Error rate
+        http_requests_total{service="gateway", status="5xx"} 50/s (0.5%)
+
+        # Active connections
+        http_active_connections{service="gateway"} 8500
+        ```
+
+        **Product Service:**
+        ```
+        # Request rate
+        http_requests_total{service="product"} 15000/s
+
+        # Latency
+        http_request_duration_seconds{service="product", quantile="0.99"} 1.8
+
+        # Database metrics
+        db_query_duration_seconds{service="product", query="get_product"} 0.002
+        db_query_duration_seconds{service="product", query="search_products"} 0.5
+        db_connections_active{service="product"} 95
+        db_connections_max{service="product"} 100
+
+        # Cache metrics
+        cache_hit_rate{service="product"} 0.45
+        cache_latency_seconds{service="product"} 0.001
+        ```
+
+        **Order Service:**
+        ```
+        # Request rate
+        http_requests_total{service="order"} 5000/s
+
+        # Latency
+        http_request_duration_seconds{service="order", quantile="0.99"} 0.3
+
+        # Database metrics
+        db_query_duration_seconds{service="order", query="create_order"} 0.05
+        db_connections_active{service="order"} 40
+        db_connections_max{service="order"} 100
+        ```
+
+        **User Service:**
+        ```
+        # Request rate
+        http_requests_total{service="user"} 12000/s
+
+        # Latency
+        http_request_duration_seconds{service="user", quantile="0.99"} 0.1
+
+        # JWT validation
+        jwt_validation_duration_seconds 0.0001
+        ```
+
+        **Application Logs:**
+
+        ```
+        # Product Service logs (sampled)
+        2024-01-15 14:23:45.123 WARN  [product-service] Connection pool exhausted, waiting for connection
+        2024-01-15 14:23:45.456 WARN  [product-service] Connection pool exhausted, waiting for connection
+        2024-01-15 14:23:46.789 ERROR [product-service] Timeout waiting for database connection after 5000ms
+        2024-01-15 14:23:47.012 INFO  [product-service] Search query took 1.2s for term "wireless headphones"
+        2024-01-15 14:23:47.345 WARN  [product-service] Cache miss for product_id=12345, falling back to DB
+        2024-01-15 14:23:48.678 INFO  [product-service] Bulk product fetch: 50 products in 800ms
+
+        # API Gateway logs
+        2024-01-15 14:23:45.100 INFO  [gateway] Request /api/products/search took 2100ms
+        2024-01-15 14:23:45.200 INFO  [gateway] Request /api/products/12345 took 1800ms
+        2024-01-15 14:23:45.300 WARN  [gateway] Circuit breaker OPEN for product-service
+        2024-01-15 14:23:45.400 INFO  [gateway] Request /api/orders/create took 350ms
+        2024-01-15 14:23:45.500 ERROR [gateway] Upstream timeout for /api/products/search after 3000ms
+        ```
+
+        **Database Analysis:**
+
+        **Product Database - Slow Query Log:**
+        ```sql
+        -- Query 1: Executed 5000 times/hour, avg 500ms
+        SELECT * FROM products
+        WHERE category_id = 123
+        AND status = 'active'
+        AND price BETWEEN 10 AND 100
+        ORDER BY popularity DESC
+        LIMIT 50;
+
+        -- EXPLAIN ANALYZE output:
+        Limit  (cost=15234.56..15234.78 rows=50 width=512) (actual time=498.123..498.234 rows=50 loops=1)
+          -> Sort  (cost=15234.56..15456.78 rows=45000 width=512) (actual time=498.100..498.150 rows=50 loops=1)
+                Sort Key: popularity DESC
+                Sort Method: top-N heapsort  Memory: 89kB
+                -> Seq Scan on products  (cost=0.00..12345.00 rows=45000 width=512) (actual time=0.023..456.789 rows=45000 loops=1)
+                      Filter: ((status = 'active') AND (category_id = 123) AND (price >= 10) AND (price <= 100))
+                      Rows Removed by Filter: 955000
+
+        -- Query 2: Full text search, executed 2000 times/hour, avg 800ms
+        SELECT * FROM products
+        WHERE to_tsvector('english', name || ' ' || description) @@ plainto_tsquery('english', 'wireless bluetooth headphones')
+        ORDER BY ts_rank(to_tsvector('english', name || ' ' || description), plainto_tsquery('english', 'wireless bluetooth headphones')) DESC
+        LIMIT 20;
+        ```
+
+        **Index Analysis:**
+        ```sql
+        -- Existing indexes on products table
+        CREATE INDEX idx_products_category ON products(category_id);
+        CREATE INDEX idx_products_status ON products(status);
+
+        -- Missing: composite index, covering index, full-text search index
+        ```
+
+        **Table Statistics:**
+        ```
+        products table:
+        - Total rows: 1,000,000
+        - Table size: 2GB
+        - Index size: 500MB
+        - Dead tuples: 150,000 (needs VACUUM)
+        ```
+
+        **Application Configuration:**
+
+        **Product Service (application.yml):**
+        ```yaml
+        spring:
+          datasource:
+            hikari:
+              maximum-pool-size: 100
+              minimum-idle: 10
+              connection-timeout: 5000
+              idle-timeout: 300000
+
+        redis:
+          host: redis-cluster.internal
+          port: 6379
+          timeout: 1000
+          pool:
+            max-active: 50
+            max-idle: 10
+
+        feign:
+          client:
+            config:
+              default:
+                connectTimeout: 5000
+                readTimeout: 10000
+        ```
+
+        **Infrastructure Metrics:**
+
+        **PostgreSQL Server:**
+        ```
+        CPU Usage: 85%
+        Memory Usage: 90%
+        Disk I/O: 80% utilization
+        Active Connections: 450/500
+        Shared Buffers Hit Rate: 75%
+        ```
+
+        **Redis Cluster:**
+        ```
+        Memory Usage: 4GB/8GB
+        Commands/sec: 50000
+        Hit Rate: 45%
+        Keyspace: 2M keys
+        Eviction Policy: allkeys-lru
+        Evictions/sec: 100
+        ```
+
+        **Kubernetes Pod Status:**
+        ```
+        product-service: 10 replicas, 2 CPU / 4GB each
+        order-service: 5 replicas, 1 CPU / 2GB each
+        user-service: 5 replicas, 1 CPU / 2GB each
+
+        Product service pods showing:
+        - CPU: 180% (throttled)
+        - Memory: 3.8GB/4GB
+        - Restarts in last hour: 3
+        ```
+
+        **Your Task:**
+
+        Provide a comprehensive performance analysis including:
+
+        1. **Root Cause Analysis**:
+           - Primary bottleneck identification
+           - Secondary issues
+           - Correlation between symptoms
+
+        2. **Immediate Fixes** (can be done today):
+           - Database query optimization
+           - Configuration changes
+           - Quick wins
+
+        3. **Short-term Improvements** (1-2 weeks):
+           - Caching strategy improvements
+           - Connection pool tuning
+           - Index optimization
+
+        4. **Long-term Architecture Changes** (1-3 months):
+           - Service redesign if needed
+           - Database sharding/read replicas
+           - Caching layer improvements
+
+        5. **Monitoring Improvements**:
+           - Additional metrics to collect
+           - Alerting thresholds
+           - Dashboards to create
+
+        6. **Implementation Plan**:
+           - Priority-ranked action items
+           - Expected impact of each change
+           - Rollback procedures
+
+        Provide specific SQL queries, configuration changes, and code modifications where applicable.
+
+      - |
+        You are helping a startup migrate from a monolithic application to microservices. The following is the complete context of their current system and the challenges they're facing. Provide a detailed migration strategy.
+
+        **Company Context:**
+        - B2B SaaS platform for project management
+        - 5 years old, started as a simple tool, now has 200+ features
+        - 500 enterprise customers, 50,000 daily active users
+        - Team: 30 developers, 5 DevOps, 3 QA
+        - Revenue: $10M ARR, growing 40% year-over-year
+
+        **Current Monolith Architecture:**
+
+        ```
+        Single Django Application (Python 3.8)
+        |
+        +-- apps/
+        |   +-- users/          # Authentication, profiles, teams
+        |   +-- projects/       # Project CRUD, templates
+        |   +-- tasks/          # Task management, assignments
+        |   +-- comments/       # Comments, mentions, notifications
+        |   +-- files/          # File uploads, storage
+        |   +-- billing/        # Subscription, payments
+        |   +-- reports/        # Analytics, exports
+        |   +-- integrations/   # Slack, Jira, GitHub integrations
+        |   +-- api/            # REST API for mobile apps
+        |   +-- webhooks/       # Outbound webhooks
+        |
+        +-- Database: PostgreSQL (single instance, 500GB)
+        +-- Cache: Redis (single instance)
+        +-- Queue: Celery + RabbitMQ
+        +-- Storage: AWS S3
+        +-- Search: Elasticsearch
+        ```
+
+        **Codebase Statistics:**
+        - Total lines of code: 800,000
+        - Number of database tables: 150
+        - Number of API endpoints: 400
+        - Test coverage: 45%
+        - Average deployment frequency: 2 times/week
+        - Average deployment time: 45 minutes
+        - Average rollback time: 30 minutes
+
+        **Current Pain Points:**
+
+        **1. Deployment Issues:**
+        ```
+        Recent deployment incidents:
+        - Jan 5: Billing code change broke task creation (unrelated features)
+        - Jan 12: Memory leak in reports caused entire app to crash
+        - Jan 20: Database migration took 4 hours, 99.5% availability that day
+        - Feb 1: Integration update broke authentication for 2 hours
+        ```
+
+        **2. Development Velocity:**
+        ```
+        - Feature development time increased 3x over past 2 years
+        - New developers need 3 months to become productive
+        - 60% of time spent on bug fixes vs new features
+        - Cross-team dependencies causing sprint delays
+        ```
+
+        **3. Scaling Issues:**
+        ```
+        - Cannot scale specific components (reports are CPU-heavy)
+        - Peak hour performance degradation (9-11 AM EST)
+        - Large customer onboarding requires manual database optimization
+        - File processing blocks web workers
+        ```
+
+        **4. Technical Debt:**
+        ```python
+        # Example of problematic code patterns
+
+        # Circular imports throughout codebase
+        from apps.users.models import User
+        from apps.tasks.models import Task
+        from apps.projects.models import Project
+
+        class Comment(models.Model):
+            # Direct model references everywhere
+            user = models.ForeignKey(User, on_delete=models.CASCADE)
+            task = models.ForeignKey(Task, on_delete=models.CASCADE, null=True)
+            project = models.ForeignKey(Project, on_delete=models.CASCADE, null=True)
+
+            def save(self, *args, **kwargs):
+                # Business logic in models
+                super().save(*args, **kwargs)
+                # Sending notifications from model
+                send_notification_to_mentioned_users(self)
+                # Updating task status from comment model
+                if self.task and '@complete' in self.content:
+                    self.task.status = 'completed'
+                    self.task.save()
+                # Billing logic mixed in
+                if self.user.team.subscription.plan == 'free':
+                    check_comment_quota(self.user.team)
+        ```
+
+        **Database Schema Complexity:**
+        ```sql
+        -- Example of tightly coupled tables
+        SELECT
+            t.id, t.title, t.status,
+            p.name as project_name,
+            u.email as assignee_email,
+            u2.email as creator_email,
+            c.count as comment_count,
+            f.count as file_count,
+            tl.hours as time_logged
+        FROM tasks t
+        JOIN projects p ON t.project_id = p.id
+        JOIN users u ON t.assignee_id = u.id
+        JOIN users u2 ON t.creator_id = u2.id
+        LEFT JOIN (SELECT task_id, COUNT(*) as count FROM comments GROUP BY task_id) c ON c.task_id = t.id
+        LEFT JOIN (SELECT task_id, COUNT(*) as count FROM files GROUP BY task_id) f ON f.task_id = t.id
+        LEFT JOIN (SELECT task_id, SUM(hours) as hours FROM time_logs GROUP BY task_id) tl ON tl.task_id = t.id
+        WHERE p.team_id = %s
+        AND t.due_date BETWEEN %s AND %s;
+
+        -- This query joins 6 tables and is used in 50+ places
+        ```
+
+        **Current Infrastructure:**
+        ```yaml
+        Production Environment:
+          Web Servers:
+            - 10x c5.2xlarge EC2 instances
+            - Behind AWS ALB
+            - Auto-scaling: 10-30 instances
+
+          Database:
+            - db.r5.4xlarge RDS PostgreSQL
+            - 500GB storage, 70% utilized
+            - 1 read replica (reports only)
+            - IOPS: 10,000 provisioned
+
+          Cache:
+            - r5.xlarge ElastiCache Redis
+            - Single node (no cluster)
+
+          Queue:
+            - 3x t3.medium RabbitMQ cluster
+            - 20 Celery workers
+
+          Other:
+            - CloudFront CDN
+            - S3 for file storage (5TB)
+            - Elasticsearch 3-node cluster
+        ```
+
+        **Team Structure:**
+        ```
+        Current (feature teams working on monolith):
+        - Platform Team (8 devs): Core infrastructure, users, billing
+        - Product Team (12 devs): Projects, tasks, comments
+        - Integrations Team (6 devs): External integrations, webhooks
+        - Mobile Team (4 devs): iOS, Android, API
+
+        Proposed (after migration):
+        - ???
+        ```
+
+        **Business Constraints:**
+        - Cannot have extended downtime (max 4 hours/month)
+        - Enterprise customers have SLA commitments
+        - Mobile apps must continue working during migration
+        - No budget for complete rewrite (need incremental approach)
+        - Must maintain feature parity
+        - Migration should not slow down feature development
+
+        **Management Questions:**
+        1. How long will this migration take?
+        2. How many additional engineers do we need?
+        3. What's the risk of failure?
+        4. How do we measure success?
+        5. What if we just stay with the monolith?
+
+        **Your Task:**
+
+        Provide a comprehensive migration strategy including:
+
+        1. **Assessment and Prioritization**:
+           - Which components should be extracted first?
+           - Dependency analysis
+           - Risk assessment for each component
+
+        2. **Target Architecture**:
+           - Proposed microservices design
+           - Service boundaries and responsibilities
+           - Data ownership model
+           - Communication patterns (sync vs async)
+
+        3. **Migration Patterns**:
+           - Strangler Fig pattern implementation
+           - Database decomposition strategy
+           - API versioning approach
+           - Feature flags strategy
+
+        4. **Data Migration**:
+           - Strategy for splitting the database
+           - Handling foreign key relationships
+           - Data synchronization during transition
+           - Eventual consistency patterns
+
+        5. **Infrastructure Evolution**:
+           - Kubernetes adoption plan
+           - Service mesh requirements
+           - Observability stack
+           - CI/CD pipeline changes
+
+        6. **Team Reorganization**:
+           - Conway's Law considerations
+           - New team structure proposal
+           - Training and hiring needs
+
+        7. **Risk Mitigation**:
+           - Rollback strategies
+           - Testing approach
+           - Gradual rollout plan
+           - Incident response during migration
+
+        8. **Timeline and Milestones**:
+           - Phased approach with deliverables
+           - Success criteria for each phase
+           - Decision points for go/no-go
+
+        9. **Cost Analysis**:
+           - Infrastructure cost changes
+           - Personnel costs
+           - Productivity impact
+
+        10. **Alternatives Considered**:
+            - Modular monolith approach
+            - Partial extraction
+            - Complete rewrite comparison
+
+      - |
+        The following is a complex debugging session for a production incident. Analyze all the provided information and identify the root cause.
+
+        **Incident Summary:**
+        - Date: January 15, 2024, 14:00 UTC
+        - Duration: 3 hours
+        - Impact: 30% of user requests failing with 500 errors
+        - Services affected: Payment processing, order creation
+        - Revenue impact: Estimated $150,000 in lost sales
+
+        **Timeline of Events:**
+
+        ```
+        13:45 UTC - Routine deployment of Order Service v2.3.4 (minor bug fix)
+        13:50 UTC - All systems normal, deployment successful
+        14:00 UTC - First alert: Payment Service error rate > 1%
+        14:02 UTC - Second alert: Order Service P99 latency > 2s
+        14:05 UTC - Customer complaints start coming in
+        14:10 UTC - On-call engineer starts investigation
+        14:15 UTC - Order Service rollback initiated
+        14:20 UTC - Rollback complete, but errors continue
+        14:30 UTC - Payment Service rollback initiated
+        14:35 UTC - No improvement after Payment Service rollback
+        14:45 UTC - Database team engaged
+        15:00 UTC - Identified potential database issue
+        15:30 UTC - Database connection pool exhausted confirmed
+        16:00 UTC - Temporary fix: Increased connection pool size
+        16:15 UTC - Error rate drops to 0.1%
+        16:30 UTC - All systems normal
+        17:00 UTC - Incident closed, post-mortem scheduled
+        ```
+
+        **Service Topology:**
+        ```
+        Web -> API Gateway -> Order Service -> Payment Service
+                    |              |                 |
+                    v              v                 v
+               User Service    Order DB         Payment DB
+                    |                                |
+                    v                                v
+                User DB                         Stripe API
+        ```
+
+        **Deployment Diff (Order Service v2.3.3 -> v2.3.4):**
+        ```diff
+        --- a/order_service/handlers/create_order.py
+        +++ b/order_service/handlers/create_order.py
+        @@ -45,7 +45,7 @@ class OrderHandler:
+             async def create_order(self, request: OrderRequest) -> OrderResponse:
+                 # Validate inventory
+        -        inventory = await self.inventory_client.check(request.items)
+        +        inventory = await self.inventory_client.check_with_reservation(request.items)
+
+                 if not inventory.available:
+                     raise OutOfStockError(inventory.missing_items)
+        @@ -56,6 +56,9 @@ class OrderHandler:
+                 # Create order record
+                 order = await self.order_repository.create(order_data)
+
+        +        # New: Log order creation for analytics
+        +        await self.analytics_client.log_event("order_created", order.to_dict())
+        +
+                 # Process payment
+                 payment_result = await self.payment_client.process(
+                     order_id=order.id,
+        ```
+
+        **Error Logs (Payment Service):**
+        ```
+        2024-01-15 14:00:15.123 ERROR [payment-service-pod-abc123] PaymentProcessor - Failed to process payment
+        java.sql.SQLException: Cannot acquire connection from pool
+            at com.zaxxer.hikari.pool.HikariPool.getConnection(HikariPool.java:155)
+            at com.zaxxer.hikari.HikariDataSource.getConnection(HikariDataSource.java:128)
+            at com.company.payment.repository.PaymentRepository.save(PaymentRepository.java:45)
+            ... 15 more
+
+        2024-01-15 14:00:15.456 ERROR [payment-service-pod-def456] PaymentProcessor - Connection wait timeout
+        java.sql.SQLException: Connection is not available, request timed out after 30000ms
+            at com.zaxxer.hikari.pool.HikariPool.getConnection(HikariPool.java:155)
+            ...
+
+        2024-01-15 14:00:16.789 WARN [payment-service-pod-abc123] HikariPool - Connection pool stats: total=50, active=50, idle=0, waiting=127
+        ```
+
+        **Database Metrics (Payment DB):**
+        ```
+        Time          Active Connections    Max Connections    Query Duration (avg)
+        13:45 UTC     45                    200                25ms
+        13:50 UTC     48                    200                28ms
+        14:00 UTC     180                   200                450ms
+        14:05 UTC     198                   200                2500ms
+        14:10 UTC     200                   200                5000ms
+        14:15 UTC     200                   200                8000ms
+        14:30 UTC     200                   200                10000ms
+        ```
+
+        **Payment Service Configuration:**
+        ```yaml
+        spring:
+          datasource:
+            hikari:
+              maximum-pool-size: 50
+              minimum-idle: 10
+              connection-timeout: 30000
+              max-lifetime: 1800000
+        ```
+
+        **Slow Query Log (Payment DB):**
+        ```sql
+        -- Started appearing at 14:00 UTC
+        -- Executed 5000+ times between 14:00-16:00
+
+        SELECT p.*, o.*, u.*
+        FROM payments p
+        JOIN orders o ON p.order_id = o.id
+        JOIN users u ON o.user_id = u.id
+        WHERE p.status = 'pending'
+        AND p.created_at > NOW() - INTERVAL '1 hour'
+        FOR UPDATE;
+
+        -- Execution time: 5-10 seconds
+        -- Rows locked: 500-2000
+        ```
+
+        **Order Service Logs:**
+        ```
+        2024-01-15 14:00:10.123 INFO [order-service] Creating order for user_id=12345
+        2024-01-15 14:00:10.234 INFO [order-service] Inventory reserved successfully
+        2024-01-15 14:00:10.345 INFO [order-service] Order created: order_id=ord_abc123
+        2024-01-15 14:00:10.456 INFO [order-service] Logging analytics event: order_created
+        2024-01-15 14:00:10.567 INFO [order-service] Calling payment service...
+        2024-01-15 14:00:40.678 ERROR [order-service] Payment service timeout after 30s
+        2024-01-15 14:00:40.789 ERROR [order-service] Order creation failed, initiating rollback
+        2024-01-15 14:00:41.012 INFO [order-service] Inventory reservation cancelled
+        2024-01-15 14:00:41.123 ERROR [order-service] Failed to cancel analytics event (non-critical)
+        ```
+
+        **Analytics Service Logs:**
+        ```
+        2024-01-15 14:00:10.500 INFO [analytics-service] Received event: order_created
+        2024-01-15 14:00:10.510 INFO [analytics-service] Querying payment status for order ord_abc123
+        2024-01-15 14:00:10.520 INFO [analytics-service] Executing enrichment query...
+        2024-01-15 14:00:15.530 WARN [analytics-service] Enrichment query slow: 5000ms
+        2024-01-15 14:00:15.540 INFO [analytics-service] Event enriched and stored
+        ```
+
+        **Analytics Service Code (newly deployed):**
+        ```python
+        async def enrich_order_event(self, event: dict) -> dict:
+            order_id = event["order_id"]
+
+            # Fetch payment status for enrichment
+            payment_status = await self.payment_db.fetch_one(
+                """
+                SELECT p.*, o.*, u.*
+                FROM payments p
+                JOIN orders o ON p.order_id = o.id
+                JOIN users u ON o.user_id = u.id
+                WHERE p.order_id = $1
+                FOR UPDATE
+                """,
+                order_id
+            )
+
+            event["payment_status"] = payment_status
+            return event
+        ```
+
+        **Network Trace (sampled):**
+        ```
+        14:00:10.100 Order Service -> Payment Service: POST /payments (started)
+        14:00:10.110 Payment Service -> Payment DB: BEGIN
+        14:00:10.120 Payment Service -> Payment DB: INSERT INTO payments...
+        14:00:10.130 Payment Service -> Payment DB: (waiting for lock)
+        ...
+        14:00:40.100 Payment Service -> Payment DB: (still waiting, 30s elapsed)
+        14:00:40.110 Order Service <- Payment Service: 504 Gateway Timeout
+        ```
+
+        **Infrastructure Metrics:**
+        ```
+        Payment Service Pods (10 replicas):
+        - CPU: 15% average
+        - Memory: 60% average
+        - Thread count: 200+ per pod (normal is 50)
+        - Heap usage: 85% (high)
+
+        Payment DB:
+        - CPU: 45%
+        - Memory: 70%
+        - Disk I/O: 30%
+        - Lock waits: 500+ per second (normally < 10)
+        ```
+
+        **Your Task:**
+
+        Provide a complete incident analysis including:
+
+        1. **Root Cause Identification**:
+           - What was the actual root cause?
+           - How did the deployment trigger it?
+           - Why didn't rollback fix it immediately?
+
+        2. **Chain of Events**:
+           - Step-by-step explanation of how the failure propagated
+           - Which component failed first?
+           - Cascade effect analysis
+
+        3. **Why Detection Was Delayed**:
+           - What monitoring gaps existed?
+           - What alerts should have fired earlier?
+
+        4. **Immediate Fixes**:
+           - What should have been done differently during incident?
+           - Optimal resolution path
+
+        5. **Long-term Preventions**:
+           - Code changes needed
+           - Architecture improvements
+           - Process improvements
+           - Monitoring additions
+
+        6. **Blameless Post-mortem Summary**:
+           - Lessons learned
+           - Action items with owners
+           - Follow-up timeline
+
+      - |
+        You are a security consultant performing a penetration test review. The following is the output from various security scanning tools and manual testing. Analyze the findings and provide a comprehensive security assessment.
+
+        **Target Application:**
+        - Financial services web application
+        - Handles sensitive customer data (PII, financial records)
+        - 100,000 active users
+        - SOC 2 Type II certified (audit coming up in 3 months)
+
+        **OWASP ZAP Scan Results:**
+        ```
+        HIGH SEVERITY:
+        [1] SQL Injection in /api/accounts/search
+            Parameter: account_number
+            Evidence: Response contains database error message
+            Request: GET /api/accounts/search?account_number=1' OR '1'='1
+            Response: "error": "You have an error in your SQL syntax..."
+
+        [2] Cross-Site Scripting (Reflected) in /support/ticket
+            Parameter: subject
+            Evidence: Script executed in response
+            Request: POST /support/ticket
+            Body: subject=<script>alert(1)</script>&description=test
+
+        [3] Insecure Direct Object Reference in /api/documents/{id}
+            Evidence: Accessed document belonging to different user
+            Request: GET /api/documents/12345 (with user A's token)
+            Response: Document belonging to user B returned
+
+        MEDIUM SEVERITY:
+        [4] Missing Security Headers
+            - X-Content-Type-Options: missing
+            - X-Frame-Options: missing
+            - Content-Security-Policy: missing
+            - Strict-Transport-Security: max-age too short (86400)
+
+        [5] Session Cookie Missing Secure Flag
+            Cookie: session_id=abc123; HttpOnly; Path=/
+
+        [6] Verbose Error Messages
+            /api/login returns: "User admin@company.com not found"
+            Reveals valid/invalid email addresses
+
+        [7] Weak Password Policy
+            Accepted password: "password123"
+            No complexity requirements enforced
+
+        LOW SEVERITY:
+        [8] Server Version Disclosure
+            Header: Server: nginx/1.19.0
+            Header: X-Powered-By: Express
+
+        [9] Directory Listing Enabled
+            /static/ returns file listing
+        ```
+
+        **Burp Suite Manual Testing:**
+
+        **Authentication Bypass Attempt:**
+        ```http
+        POST /api/login HTTP/1.1
+        Host: app.company.com
+        Content-Type: application/json
+
+        {"email": "admin@company.com", "password": "' OR '1'='1"}
+
+        Response: 401 Unauthorized (SQL injection blocked here)
+        ```
+
+        **JWT Token Analysis:**
+        ```
+        Token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiMTIzNDUiLCJyb2xlIjoidXNlciIsImV4cCI6MTcwNTMxMjAwMH0.signature
+
+        Decoded:
+        Header: {"alg": "HS256", "typ": "JWT"}
+        Payload: {"user_id": "12345", "role": "user", "exp": 1705312000}
+
+        Observations:
+        - Algorithm HS256 (symmetric) - vulnerable to key brute-force if weak
+        - No "iat" (issued at) claim
+        - No "jti" (JWT ID) for revocation
+        - Expiration is 24 hours (too long for financial app)
+        - Role is in token (can be tampered if key is weak)
+
+        Algorithm Confusion Test:
+        Modified token with alg: "none" - Rejected (good)
+        Modified token with alg: "RS256" using public key - Rejected (good)
+        ```
+
+        **API Rate Limiting Test:**
+        ```
+        Endpoint: POST /api/login
+        Test: 1000 requests in 60 seconds
+
+        Results:
+        - First 100 requests: 200/401 responses
+        - Requests 101-500: Still responding (no rate limit)
+        - Requests 501-1000: Still responding
+
+        Conclusion: No rate limiting on login endpoint
+        ```
+
+        **Password Reset Flow:**
+        ```
+        1. POST /api/password-reset
+           Body: {"email": "victim@example.com"}
+           Response: {"message": "Reset link sent"}
+           Token in email: https://app.company.com/reset?token=abc123
+
+        2. Token analysis:
+           - Token length: 6 characters (weak)
+           - Token charset: alphanumeric (62^6 = 56 billion combinations)
+           - Token expiration: 24 hours
+           - Token reusable: Yes (can reset multiple times)
+
+        3. Enumeration test:
+           POST /api/password-reset with invalid email
+           Response: {"message": "Reset link sent"}
+           (Same response - good, prevents enumeration)
+
+        4. Token brute-force estimate:
+           At 100 req/sec (observed rate): 56B / 100 = 6.5 days to exhaust
+           Risk: Medium (if targeted attack)
+        ```
+
+        **File Upload Testing:**
+        ```
+        Endpoint: POST /api/documents/upload
+
+        Test 1: Upload .exe file
+        Result: Rejected (file type validation)
+
+        Test 2: Upload .jpg with embedded PHP
+        File: malicious.jpg (contains <?php system($_GET['cmd']); ?>)
+        Result: Accepted, stored at /uploads/abc123.jpg
+        Access: Cannot execute (served as static file)
+
+        Test 3: Upload .svg with embedded JavaScript
+        File: <svg onload="alert(1)">
+        Result: Accepted
+        Access: /uploads/def456.svg - JavaScript executes!
+
+        Test 4: Path traversal
+        Filename: ../../../etc/passwd
+        Result: Sanitized to etc_passwd (good)
+        ```
+
+        **Dependency Scan (npm audit):**
+        ```
+        found 47 vulnerabilities (12 moderate, 28 high, 7 critical)
+
+        CRITICAL:
+        - lodash <4.17.21: Prototype Pollution
+        - axios <0.21.1: SSRF vulnerability
+        - jsonwebtoken <9.0.0: Algorithm confusion
+
+        HIGH:
+        - express-session <1.17.3: Session fixation
+        - multer <1.4.4: ReDoS vulnerability
+        - mongodb <3.6.4: BSON parsing vulnerability
+        ```
+
+        **Infrastructure Scan (Nmap + SSL Labs):**
+        ```
+        Port Scan:
+        22/tcp   open  ssh        OpenSSH 7.9
+        80/tcp   open  http       nginx 1.19
+        443/tcp  open  https      nginx 1.19
+        3000/tcp open  node       (development server exposed!)
+        5432/tcp filtered postgresql
+
+        SSL Labs Grade: B
+        Issues:
+        - TLS 1.0 enabled (should be disabled)
+        - TLS 1.1 enabled (should be disabled)
+        - Weak cipher suites present
+        - No OCSP stapling
+        ```
+
+        **Code Review Findings (from source access):**
+        ```javascript
+        // Finding 1: Hardcoded secrets
+        // config/production.js
+        module.exports = {
+            jwt_secret: "super_secret_key_123",
+            db_password: "prod_password_456",
+            stripe_key: "sk_live_..."
+        };
+
+        // Finding 2: Unsafe deserialization
+        // api/import.js
+        const data = JSON.parse(req.body.data);
+        eval(data.transform);  // Code injection!
+
+        // Finding 3: Missing authorization check
+        // api/admin/users.js
+        router.get('/users', (req, res) => {
+            // No role check!
+            return User.findAll();
+        });
+
+        // Finding 4: Logging sensitive data
+        // middleware/logger.js
+        console.log(`Login attempt: ${email} / ${password}`);
+        ```
+
+        **Your Task:**
+
+        Provide a comprehensive security assessment including:
+
+        1. **Executive Summary**:
+           - Overall security posture rating
+           - Top 5 critical risks
+           - SOC 2 compliance impact
+
+        2. **Vulnerability Analysis**:
+           - Each finding with CVSS score
+           - Business impact assessment
+           - Likelihood of exploitation
+
+        3. **Attack Scenarios**:
+           - Realistic attack chains combining vulnerabilities
+           - Potential data breach scenarios
+           - Financial impact estimates
+
+        4. **Remediation Roadmap**:
+           - Priority-ranked fixes
+           - Quick wins (can fix today)
+           - Medium-term improvements (1-4 weeks)
+           - Long-term architecture changes
+
+        5. **Specific Code Fixes**:
+           - Corrected code for each vulnerability
+           - Security best practices to implement
+           - Secure coding guidelines
+
+        6. **Compliance Gap Analysis**:
+           - SOC 2 requirements not met
+           - Evidence needed for audit
+           - Recommended controls
+
+        7. **Security Program Recommendations**:
+           - SDLC security integration
+           - Security training needs
+           - Ongoing monitoring requirements
+
+      - |
+        You are a machine learning engineer tasked with designing and implementing a recommendation system for a large streaming platform. The following is the complete context including data infrastructure, business requirements, and existing attempts.
+
+        **Business Context:**
+        - Streaming platform with 50 million active users
+        - Content library: 100,000 movies and TV shows
+        - User interactions: 500 million events per day (views, ratings, searches, pauses)
+        - Current recommendation engine: Collaborative filtering from 2019, showing fatigue
+        - Goal: Increase user engagement by 20% and reduce churn by 15%
+
+        **Data Infrastructure:**
+
+        **Available Data Sources:**
+        ```
+        1. User Profiles (PostgreSQL):
+           - Demographics: age, gender, location, subscription_tier
+           - Preferences: favorite genres, languages, actors
+           - Account history: signup_date, subscription_changes
+
+        2. Content Metadata (Elasticsearch):
+           - Basic: title, genre, release_year, duration, rating
+           - Rich: plot_summary, cast, director, keywords, mood_tags
+           - Technical: resolution, audio_formats, subtitles
+
+        3. Interaction Events (Kafka -> ClickHouse):
+           - Views: content_id, user_id, watch_duration, completion_rate
+           - Ratings: explicit ratings (1-5 stars)
+           - Implicit: searches, browsing, add_to_list, shares
+           - Context: device_type, time_of_day, day_of_week
+
+        4. Social Graph (Neo4j):
+           - Friend connections
+           - Shared watchlists
+           - Group viewing sessions
+
+        5. Content Embeddings (existing):
+           - 512-dim vectors from CLIP model (visual)
+           - 768-dim vectors from BERT (plot descriptions)
+        ```
+
+        **Current System Architecture:**
+        ```
+        User Request -> API Gateway -> Recommendation Service -> Redis Cache
+                                              |
+                              +---------------+---------------+
+                              |               |               |
+                         Candidate       Ranking          Diversity
+                         Generation      Model            Filter
+                              |               |               |
+                         ALS Matrix      XGBoost         Rule-based
+                         Factorization   (features)      (genre mix)
+        ```
+
+        **Current System Problems:**
+
+        **1. Cold Start Issues:**
+        ```python
+        # Current approach for new users
+        def get_recommendations_new_user(user):
+            # Just returns popular content - not personalized
+            return get_trending_content(limit=20)
+
+        # Current approach for new content
+        def get_new_content_exposure(content):
+            # New content gets almost no exposure
+            # 90% of views go to top 1000 titles
+            pass
+        ```
+
+        **2. Real-time Personalization Gap:**
+        ```
+        Current update cycle:
+        - ALS model retrained weekly (batch)
+        - User vectors updated daily
+        - No real-time signal incorporation
+
+        Problem scenario:
+        - User watches 3 documentaries in one session
+        - Recommendations still show action movies
+        - Takes 24+ hours to reflect new interests
+        ```
+
+        **3. Diversity Issues:**
+        ```
+        Analysis of current recommendations:
+        - Average genre diversity score: 0.3 (out of 1.0)
+        - 70% of recommendations are sequels/similar titles
+        - Users report "feeling stuck in a bubble"
+        - Exploration of new genres is rare
+        ```
+
+        **4. Scalability Concerns:**
+        ```
+        Current performance:
+        - Candidate generation: 50ms (acceptable)
+        - Ranking: 200ms (too slow)
+        - End-to-end P99: 500ms (target: 100ms)
+
+        Batch processing:
+        - Full model retrain: 12 hours
+        - Incremental update: 4 hours
+        - Embedding updates: 6 hours
+        ```
+
+        **Previous Improvement Attempts:**
+
+        **Attempt 1: Deep Learning Ranker**
+        ```python
+        # Tried replacing XGBoost with neural network
+        class DeepRanker(nn.Module):
+            def __init__(self):
+                self.user_tower = nn.Sequential(...)
+                self.item_tower = nn.Sequential(...)
+
+            def forward(self, user_features, item_features):
+                user_emb = self.user_tower(user_features)
+                item_emb = self.item_tower(item_features)
+                return torch.dot(user_emb, item_emb)
+
+        # Result: 5% improvement in offline metrics
+        # But: 3x latency increase, couldn't deploy
+        ```
+
+        **Attempt 2: Contextual Bandits**
+        ```python
+        # Tried Thompson Sampling for exploration
+        class ContextualBandit:
+            def select_arm(self, context, arms):
+                # Sample from posterior for each arm
+                samples = [self.sample_reward(context, arm) for arm in arms]
+                return arms[np.argmax(samples)]
+
+        # Result: Good exploration, but
+        # - High variance in user experience
+        # - Hard to explain to stakeholders
+        # - Cold start for new content still unsolved
+        ```
+
+        **Attempt 3: Graph Neural Networks**
+        ```python
+        # Tried GNN on user-content interaction graph
+        class GNNRecommender(nn.Module):
+            def __init__(self):
+                self.conv1 = GCNConv(in_dim, hidden_dim)
+                self.conv2 = GCNConv(hidden_dim, out_dim)
+
+            def forward(self, x, edge_index):
+                x = F.relu(self.conv1(x, edge_index))
+                x = self.conv2(x, edge_index)
+                return x
+
+        # Result: Best offline metrics
+        # But: Graph too large (50M users * 100K items)
+        # Training takes 3 days, not practical
+        ```
+
+        **A/B Testing Infrastructure:**
+        ```yaml
+        Current capabilities:
+          - Traffic splitting by user_id hash
+          - Metric tracking: CTR, watch_time, retention
+          - Statistical significance calculator
+          - Holdout groups for long-term effects
+
+        Challenges:
+          - Only 5% traffic for experiments (business constraint)
+          - Need 2 weeks for statistical significance
+          - Hard to isolate recommendation effects from content effects
+        ```
+
+        **Your Task:**
+
+        Design a comprehensive recommendation system that addresses all the above challenges:
+
+        1. **System Architecture**:
+           - Multi-stage recommendation pipeline
+           - Real-time and batch components
+           - Caching strategy
+           - Fallback mechanisms
+
+        2. **Model Design**:
+           - Candidate generation approach (handle 100K items efficiently)
+           - Ranking model architecture
+           - How to incorporate multiple signal types
+           - Handling cold start for users and items
+
+        3. **Real-time Personalization**:
+           - Session-based recommendation updates
+           - Feature freshness requirements
+           - Online learning approach
+
+        4. **Diversity and Exploration**:
+           - Balancing exploitation vs exploration
+           - Ensuring content diversity
+           - Fairness in content exposure
+
+        5. **Training Pipeline**:
+           - Data pipeline design
+           - Training schedule
+           - Model validation approach
+           - A/B testing strategy
+
+        6. **Scalability Solution**:
+           - Meet 100ms latency target
+           - Handle 50M users efficiently
+           - Cost optimization
+
+        7. **Implementation Code**:
+           - Core model architecture (PyTorch)
+           - Feature engineering pipeline
+           - Serving infrastructure
+           - Monitoring and alerting
+
+        8. **Evaluation Framework**:
+           - Offline metrics
+           - Online metrics
+           - Business metrics alignment
+
+        Provide detailed design documentation with code implementations and expected performance characteristics.
+
+# Generation configuration (defaults, can be overridden by prompt type)
 generation_config:
   temperature: 0.7
   top_p: 0.9

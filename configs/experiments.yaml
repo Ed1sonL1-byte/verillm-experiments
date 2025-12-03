@@ -122,3 +122,9 @@ exp6_one_to_many:
       verification_devices: ["nvidia", "mac", "nvidia"]  # 3个验证者
       num_verifiers: 3
       parallel: true  # 并行执行
+
+# Pe:          mean=0.008982, std=0.009687, p90=0.015625
+# Pm:          mean=0.602678, std=0.397146, p50=0.842634
+# Pw:          mean=0.397317, std=0.397148, p50=0.157366
+# Mean Error:  mean=0.001503, std=0.002839, p95=0.004475
+# Accept Rate: mean=0.9884, min=0.9607, max=0.9991

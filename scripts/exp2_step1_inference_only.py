@@ -1,0 +1,223 @@
+"""
+Experiment 2 - Step 1: Inference Only (Run on NVIDIA Server)
+
+This script performs inference and saves hidden states to files.
+The hidden states can then be transferred to a Mac for verification.
+
+Usage:
+    python scripts/exp2_step1_inference_only.py --trials 10 --device cuda:0
+"""
+
+import sys
+from pathlib import Path
+project_root = Path(__file__).parent.parent
+sys.path.insert(0, str(project_root))
+sys.path.insert(0, str(project_root / "experiments"))
+
+import argparse
+import json
+import pickle
+import time
+import numpy as np
+import torch
+from datetime import datetime
+
+from src.models.model_loader import ModelLoader
+from src.inference.inferencer import Inferencer
+from src.utils.logger import setup_logger
+from base_experiment import BaseExperiment
+
+
+class Exp2InferenceOnly:
+    """Run inference only and save hidden states for later verification"""
+
+    def __init__(self, model_name: str, device: str, output_dir: Path):
+        self.model_name = model_name
+        self.device = device
+        self.output_dir = output_dir
+        self.output_dir.mkdir(parents=True, exist_ok=True)
+        self.logger = setup_logger(f"exp2_inference_{model_name}_{device}")
+
+        # Load prompts config
+        import yaml
+        with open(project_root / "configs/prompts.yaml", 'r') as f:
+            self.prompts_config = yaml.safe_load(f)
+
+    def get_prompts_with_config(self, num_prompts: int = 10):
+        """Get diverse prompts with their generation configs"""
+        prompts_with_config = []
+        prompt_types = ['short', 'medium', 'long']
+
+        prompts_per_type = num_prompts // len(prompt_types)
+        remainder = num_prompts % len(prompt_types)
+
+        for idx, prompt_type in enumerate(prompt_types):
+            type_config = self.prompts_config['prompts'][prompt_type]
+            templates = type_config['templates']
+            max_tokens = type_config.get('max_tokens', 4000)
+            min_tokens = type_config.get('min_tokens', 500)
+
+            num_to_take = prompts_per_type + (1 if idx < remainder else 0)
+
+            for template in templates[:num_to_take]:
+                prompts_with_config.append((template, max_tokens, min_tokens, prompt_type))
+
+        return prompts_with_config[:num_prompts]
+
+    def run_inference(self, prompt: str, trial_id: int, max_tokens: int,
+                      min_tokens: int, input_category: str) -> dict:
+        """Run inference and return results with hidden states"""
+        self.logger.info("=" * 80)
+        self.logger.info(f"Trial {trial_id}: {self.model_name} on {self.device}")
+        self.logger.info(f"Input category: {input_category}")
+        self.logger.info(f"Prompt length: {len(prompt)} chars")
+        self.logger.info(f"Max tokens: {max_tokens}, Min tokens: {min_tokens}")
+        self.logger.info("=" * 80)
+
+        # Load model
+        self.logger.info(f"Loading model {self.model_name} to {self.device}...")
+        model_loader = ModelLoader()
+        model, tokenizer = model_loader.load_model(self.model_name, device=self.device)
+
+        # Run inference
+        inferencer = Inferencer(model, tokenizer, self.device, self.logger)
+        self.logger.info("Starting inference (Prefill + Decode)...")
+
+        inference_result = inferencer.generate_with_hidden_states(
+            prompt=prompt,
+            max_new_tokens=max_tokens,
+            temperature=0.7,
+            top_p=0.9,
+            sample_layers_every=8
+        )
+
+        self.logger.info(f"Inference complete: {len(inference_result['generated_tokens'])} tokens")
+        self.logger.info(f"Inference time: {inference_result['timing']['total_time']:.2f}s")
+
+        # Free GPU memory
+        del model
+        torch.cuda.empty_cache()
+
+        return inference_result
+
+    def save_inference_result(self, result: dict, trial_id: int, input_category: str):
+        """Save inference result with hidden states to files"""
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        base_filename = f"exp2_inference_trial{trial_id}_{input_category}_{timestamp}"
+
+        # Save hidden states separately (large file, use pickle for efficiency)
+        hidden_states_file = self.output_dir / f"{base_filename}_hidden_states.pkl"
+        with open(hidden_states_file, 'wb') as f:
+            pickle.dump(result['hidden_states'], f)
+        self.logger.info(f"Hidden states saved to: {hidden_states_file}")
+
+        # Save metadata and generated tokens (JSON for readability)
+        metadata = {
+            'experiment': 'exp2_heterogeneous',
+            'step': 'inference',
+            'trial_id': trial_id,
+            'input_category': input_category,
+            'model': self.model_name,
+            'inference_device': self.device,
+            'timestamp': timestamp,
+            'prompt': result['prompt'],
+            'generated_tokens': result['generated_tokens'],
+            'generated_text': result['generated_text'],
+            'timing': result['timing'],
+            'hidden_states_file': str(hidden_states_file.name),
+            'num_tokens_generated': len(result['generated_tokens']),
+            'num_layers_sampled': len(result['hidden_states'].get(0, {})) if result['hidden_states'] else 0
+        }
+
+        metadata_file = self.output_dir / f"{base_filename}_metadata.json"
+        with open(metadata_file, 'w', encoding='utf-8') as f:
+            json.dump(metadata, f, indent=2, ensure_ascii=False)
+        self.logger.info(f"Metadata saved to: {metadata_file}")
+
+        return {
+            'hidden_states_file': str(hidden_states_file),
+            'metadata_file': str(metadata_file)
+        }
+
+    def run(self, num_trials: int = 10):
+        """Run inference for multiple trials"""
+        self.logger.info("=" * 80)
+        self.logger.info("EXPERIMENT 2 - STEP 1: INFERENCE ONLY")
+        self.logger.info(f"Model: {self.model_name}")
+        self.logger.info(f"Device: {self.device}")
+        self.logger.info(f"Number of trials: {num_trials}")
+        self.logger.info(f"Output directory: {self.output_dir}")
+        self.logger.info("=" * 80)
+
+        prompts_config = self.get_prompts_with_config(num_prompts=num_trials)
+        all_files = []
+
+        for trial_id, (prompt, max_tokens, min_tokens, category) in enumerate(prompts_config, 1):
+            self.logger.info(f"\n===== Trial {trial_id}/{num_trials} ({category}) =====")
+
+            try:
+                # Run inference
+                result = self.run_inference(prompt, trial_id, max_tokens, min_tokens, category)
+
+                # Save results
+                files = self.save_inference_result(result, trial_id, category)
+                all_files.append(files)
+
+                self.logger.info(f"Trial {trial_id} completed successfully")
+
+            except Exception as e:
+                self.logger.error(f"Trial {trial_id} failed: {e}")
+                import traceback
+                traceback.print_exc()
+
+        # Save summary
+        summary = {
+            'experiment': 'exp2_heterogeneous',
+            'step': 'inference',
+            'model': self.model_name,
+            'device': self.device,
+            'num_trials': num_trials,
+            'completed_trials': len(all_files),
+            'output_files': all_files,
+            'timestamp': datetime.now().isoformat()
+        }
+
+        summary_file = self.output_dir / "exp2_inference_summary.json"
+        with open(summary_file, 'w') as f:
+            json.dump(summary, f, indent=2)
+
+        self.logger.info("\n" + "=" * 80)
+        self.logger.info("INFERENCE COMPLETE")
+        self.logger.info(f"Completed {len(all_files)}/{num_trials} trials")
+        self.logger.info(f"Output directory: {self.output_dir}")
+        self.logger.info(f"Summary saved to: {summary_file}")
+        self.logger.info("=" * 80)
+        self.logger.info("\nNext step: Transfer the output files to Mac and run exp2_step2_verification.py")
+
+
+def main():
+    parser = argparse.ArgumentParser(description='Exp2 Step 1: Inference Only')
+    parser.add_argument('--model', type=str, default='qwen2.5-7b',
+                        help='Model name (default: qwen2.5-7b)')
+    parser.add_argument('--device', type=str, default='cuda:0',
+                        help='Device for inference (default: cuda:0)')
+    parser.add_argument('--trials', type=int, default=10,
+                        help='Number of trials (default: 10)')
+    parser.add_argument('--output-dir', type=str, default=None,
+                        help='Output directory (default: data/raw/exp2/inference)')
+
+    args = parser.parse_args()
+
+    output_dir = Path(args.output_dir) if args.output_dir else project_root / "data/raw/exp2/inference"
+
+    runner = Exp2InferenceOnly(
+        model_name=args.model,
+        device=args.device,
+        output_dir=output_dir
+    )
+
+    runner.run(num_trials=args.trials)
+
+
+if __name__ == "__main__":
+    main()
