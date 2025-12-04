@@ -77,7 +77,6 @@ class Exp3QuantizedInferenceHomogeneous(BaseExperiment):
         inference_result = inferencer.generate_with_hidden_states(
             prompt=prompt,
             max_new_tokens=max_tokens,
-            min_new_tokens=min_tokens,
             temperature=0.7,
             top_p=0.9,
             sample_layers_every=8

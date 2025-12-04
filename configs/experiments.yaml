@@ -60,37 +60,30 @@ exp2_heterogeneous:
       inference_model: "full"
       verification_model: "full"
 
-# 实验3：量化攻击检测（同构）
-exp3_quantization_homo:
-  name: "量化攻击检测（同构）"
-  description: "推理端使用量化模型作弊，验证端使用全精度检测"
+# 实验3：量化攻击检测（多验证端）
+# 推理端使用量化模型，同时在NVIDIA和Mac上用全精度模型验证
+exp3_quantization_detection:
+  name: "量化攻击检测"
+  description: "推理端使用量化模型作弊，NVIDIA和Mac验证端都使用全精度检测"
   enabled: true
-  scenarios:
-    - name: "nvidia_quantized_nvidia_full"
-      inference_device: "nvidia"
-      verification_device: "nvidia"
-      inference_model: "quantized"  # 作弊：用量化
-      verification_model: "full"    # 验证：用全精度
-      expected_result: "REJECT"     # 预期被检测
-
-# 实验4：量化攻击检测（异构）
-exp4_quantization_hetero:
-  name: "量化攻击检测（异构）"
-  description: "跨硬件 + 量化攻击，最坏情况"
-  enabled: true
-  scenarios:
-    - name: "nvidia_quantized_mac_full"
-      inference_device: "nvidia"
-      verification_device: "mac"
-      inference_model: "quantized"
-      verification_model: "full"
+  inference:
+    device: "nvidia"
+    model: "quantized"  # 作弊：用量化模型
+  verification:
+    - name: "nvidia_verification"
+      device: "nvidia"
+      model: "full"     # NVIDIA用全精度验证
       expected_result: "REJECT"
-    - name: "mac_quantized_nvidia_full"
-      inference_device: "mac"
-      verification_device: "nvidia"
-      inference_model: "quantized"
-      verification_model: "full"
+    - name: "mac_verification"
+      device: "mac"
+      model: "full"     # Mac用全精度验证
       expected_result: "REJECT"
+  notes: |
+    这个实验测试量化模型能否被检测：
+    1. Step1: NVIDIA服务器用量化模型做推理，保存hidden states
+    2. Step2a: NVIDIA服务器用全精度模型验证（同构）
+    3. Step2b: Mac服务器用全精度模型验证（异构）
+    预期：两个验证端都应该能检测到量化作弊（REJECT）
 
 # 实验5：懒惰验证者
 exp5_lazy_verifier:
